@@ -213,6 +213,7 @@ body.play .stage{border-radius:20px}
 .endstats b{color:var(--cream)}
 
 #intro{position:fixed;inset:0;z-index:99;background:radial-gradient(120% 90% at 50% 40%,#5C1048 0%,#2E0A2A 48%,#14061A 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;transition:opacity .6s ease,visibility .6s}
+#intro:not(.go) *{animation-play-state:paused!important}
 #intro.out{opacity:0;visibility:hidden}
 #intro .burst{will-change:transform,opacity;position:absolute;left:50%;top:40%;width:560px;height:560px;margin:-280px 0 0 -280px;border-radius:50%;background:radial-gradient(circle,rgba(255,226,240,.9) 0%,rgba(243,108,174,.5) 28%,rgba(168,36,94,0) 68%);opacity:0;transform:scale(.2);animation:ibur 1.6s .5s ease-out forwards}
 @keyframes ibur{0%{opacity:0;transform:scale(.2)}35%{opacity:1}100%{opacity:.25;transform:scale(1.15)}}
@@ -297,9 +298,9 @@ body.play .stage{border-radius:20px}
     <button class="card" data-go="duelo" style="--c1:#E0577F;--c2:#C42F7F;--c3:#7A1646"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="16" cy="18" r="8" fill="#FBF7F9"/><circle cx="32" cy="18" r="8" fill="#FFD36B"/><path d="M6 40c0-7 5-11 10-11s10 4 10 11M22 40c0-7 5-11 10-11s10 4 10 11" fill="#FFFFFFAA"/><path d="M24 6l2 4 4 1-3 3 1 4-4-2-4 2 1-4-3-3 4-1z" fill="#FFD36B" transform="translate(0,-3) scale(.9)"/></svg></span><b>Duelo con amigos</b><span>Mismas preguntas, ¡a ver quién gana!</span></button>
     <button class="card" data-go="memory" style="--c1:#1F8C95;--c2:#2A6F9A;--c3:#124A63"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="9" width="20" height="28" rx="4.500" fill="#FFFFFF66" transform="rotate(-9 16 23)"/><rect x="20" y="9" width="20" height="28" rx="4.500" fill="#FBF7F9" transform="rotate(8 30 23)"/><path d="M30 17l2.200 4.600 5 .6-3.700 3.400 1 5L30 28.200 25.500 30.600l1-5-3.700-3.400 5-.6z" fill="#FFD36B" transform="rotate(8 30 23)"/></svg></span><b>Memoria bilingüe</b><span>Uní cada palabra con su traducción</span></button>
     <h3 class="grp">Para chicos</h3>
-    <button class="card" data-go="kmath" style="--c1:#2A9AA3;--c2:#2A6F9A;--c3:#124A63"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="6" width="36" height="36" rx="9" fill="#FBF7F9"/><path d="M15 17h10M20 12v10" stroke="#2A6F9A" stroke-width="3.2" stroke-linecap="round"/><path d="M28 31h8" stroke="#E04A98" stroke-width="3.2" stroke-linecap="round"/><circle cx="32" cy="17" r="3" fill="#FFD36B"/><path d="M14 31l6 6M20 31l-6 6" stroke="#2A9AA3" stroke-width="3" stroke-linecap="round"/></svg></span><b>Cuentas divertidas</b><span>Sumas, restas y tablas, siempre distintas</span></button>
-    <button class="card" data-go="kani" style="--c1:#E68A2E;--c2:#D4572E;--c3:#8F3416"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="26" r="15" fill="#FBF7F9"/><circle cx="12" cy="13" r="6" fill="#FFD36B"/><circle cx="36" cy="13" r="6" fill="#FFD36B"/><circle cx="19" cy="24" r="2.4" fill="#8F3416"/><circle cx="29" cy="24" r="2.4" fill="#8F3416"/><ellipse cx="24" cy="31" rx="4" ry="3" fill="#E04A98"/></svg></span><b>Animales</b><span>¿Quién hace miau? Preguntas de animales</span></button>
-    <button class="card" data-go="kmun" style="--c1:#7C5CFF;--c2:#5A3FC0;--c3:#352085"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5l5 12 13 1-10 9 3 13-11-7-11 7 3-13-10-9 13-1z" fill="#FFD36B"/><circle cx="24" cy="23" r="5" fill="#FBF7F9"/><circle cx="24" cy="23" r="2" fill="#5A3FC0"/></svg></span><b>Mundo de preguntas</b><span>Colores, cuentos, números y más</span></button>
+    <button class="card" data-go="kmath" style="--c1:#2A9AA3;--c2:#2A6F9A;--c3:#124A63"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="6" width="36" height="36" rx="9" fill="#FBF7F9"/><path d="M15 17h10M20 12v10" stroke="#2A6F9A" stroke-width="3.2" stroke-linecap="round"/><path d="M28 31h8" stroke="#E04A98" stroke-width="3.2" stroke-linecap="round"/><circle cx="32" cy="17" r="3" fill="#FFD36B"/><path d="M14 31l6 6M20 31l-6 6" stroke="#2A9AA3" stroke-width="3" stroke-linecap="round"/></svg></span><b>Cuentas divertidas</b><span>Tablas, fracciones y desafíos, siempre distintos</span></button>
+    <button class="card" data-go="kani" style="--c1:#E68A2E;--c2:#D4572E;--c3:#8F3416"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="26" r="15" fill="#FBF7F9"/><circle cx="12" cy="13" r="6" fill="#FFD36B"/><circle cx="36" cy="13" r="6" fill="#FFD36B"/><circle cx="19" cy="24" r="2.4" fill="#8F3416"/><circle cx="29" cy="24" r="2.4" fill="#8F3416"/><ellipse cx="24" cy="31" rx="4" ry="3" fill="#E04A98"/></svg></span><b>Animales y naturaleza</b><span>Mamíferos, aves, plantas y más</span></button>
+    <button class="card" data-go="kmun" style="--c1:#7C5CFF;--c2:#5A3FC0;--c3:#352085"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 5l5 12 13 1-10 9 3 13-11-7-11 7 3-13-10-9 13-1z" fill="#FFD36B"/><circle cx="24" cy="23" r="5" fill="#FBF7F9"/><circle cx="24" cy="23" r="2" fill="#5A3FC0"/></svg></span><b>Mundo de preguntas</b><span>Geografía, historia, ciencias e inglés</span></button>
     <h3 class="grp">Practicar</h3>
     <button class="card" data-go="english" style="--c1:#E68A2E;--c2:#D4572E;--c3:#8F3416"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 9h26a4 4 0 0 1 4 4v13a4 4 0 0 1-4 4H20l-8 7v-7H7a4 4 0 0 1-4-4V13a4 4 0 0 1 4-4z" fill="#FBF7F9"/><path d="M11 16h14M11 22h9" stroke="#C97A1A" stroke-width="2.600" stroke-linecap="round"/><rect x="27" y="26" width="18" height="13" rx="4" fill="#FFD36B"/><path d="M32 30.500h8M32 34h5" stroke="#8A4A0C" stroke-width="2" stroke-linecap="round"/></svg></span><b>Inglés Express</b><span>Preguntas rápidas de inglés laboral</span></button>
     <button class="card" data-go="order" style="--c1:#D4A017;--c2:#C97A1A;--c3:#8A4A0C"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="4" y="8" width="17" height="10" rx="3.500" fill="#FBF7F9"/><rect x="24" y="8" width="20" height="10" rx="3.500" fill="#FFD36B"/><rect x="4" y="21" width="24" height="10" rx="3.500" fill="#FFFFFF66"/><rect x="31" y="21" width="13" height="10" rx="3.500" fill="#FBF7F9"/><rect x="4" y="34" width="14" height="8" rx="3.500" fill="#FFD36B"/><path d="M23 38h21" stroke="#FFFFFF66" stroke-width="2.600" stroke-linecap="round" stroke-dasharray="1 5.500"/></svg></span><b>Ordená la frase</b><span>Armá frases en inglés palabra por palabra</span></button>
@@ -1066,74 +1067,88 @@ var Acert=QuizEngine($('qAcert'),{key:'lumi-best-ac',title:'Acertijos',n:6,per:6
 ]});
 
 /* ===== para chicos ===== */
-var Kani=QuizEngine($('qKani'),{key:'lumi-best-kani',title:'Animales',n:8,per:4,after:'¡Qué bien conocés a los animales!',desc:'8 preguntas fáciles de animales. ¡Cada vez salen otras!',bank:[
-    {q:'¿Qué animal hace “miau”?',o:['El gato', 'El perro', 'La vaca'],t:'¡Miau!'},
-    {q:'¿Qué animal hace “guau”?',o:['El perro', 'El gato', 'El pato'],t:'¡Guau guau!'},
-    {q:'¿Qué animal nos da la leche?',o:['La vaca', 'El caballo', 'La gallina'],t:'Y también se hace queso y yogur.'},
-    {q:'¿Qué animal pone huevos?',o:['La gallina', 'La vaca', 'La oveja'],t:'¡Cocoricó!'},
-    {q:'¿Cuál es el rey de la selva?',o:['El león', 'El conejo', 'La tortuga'],t:'Tiene una gran melena.'},
-    {q:'¿Qué animal tiene una trompa larga?',o:['El elefante', 'La jirafa', 'El oso'],t:'La usa para tomar agua.'},
-    {q:'¿Qué animal tiene el cuello más largo?',o:['La jirafa', 'El cocodrilo', 'El burro'],t:'Come hojas de los árboles altos.'},
-    {q:'¿Qué animal vive en el agua y tiene aletas?',o:['El pez', 'El loro', 'El conejo'],t:'Respira con branquias.'},
-    {q:'¿Qué animal salta y le gustan las zanahorias?',o:['El conejo', 'El pato', 'El cerdo'],t:'Tiene orejas largas.'},
-    {q:'¿Qué animal es muy lento y lleva su casa encima?',o:['El caracol', 'La mariposa', 'El perro'],t:'Su casa es una concha.'},
-    {q:'¿Qué animal tiene rayas blancas y negras?',o:['La cebra', 'El tigre naranja', 'El oso panda'],t:'Parece un caballo con rayas.'},
-    {q:'¿Qué animal vuela y hace miel?',o:['La abeja', 'La hormiga', 'El grillo'],t:'¡Bzzz!'},
-    {q:'¿Qué animal es blanco y negro y vive en el hielo?',o:['El pingüino', 'El flamenco', 'El pavo'],t:'Camina balanceándose.'},
-    {q:'¿Qué animal tiene ocho patas?',o:['La araña', 'La mariposa', 'La mosca'],t:'Teje telarañas.'},
-    {q:'¿Qué animal se transforma de oruga en mariposa?',o:['La mariposa', 'La rana', 'La lombriz'],t:'Se encierra en un capullo.'},
-    {q:'¿Qué animal dice “muuu”?',o:['La vaca', 'La oveja', 'El caballo'],t:'¡Muuu!'},
-    {q:'¿Qué animal dice “beee”?',o:['La oveja', 'El gato', 'El pollito'],t:'Nos da la lana.'},
-    {q:'¿Qué animal es el más grande del mar?',o:['La ballena', 'El pulpo', 'El delfín'],t:'Es enorme, pero muy buena.'},
-    {q:'¿Qué animal tiene joroba?',o:['El camello', 'El caballo', 'El burro'],t:'Vive en el desierto.'},
-    {q:'¿Qué animal duerme colgado cabeza abajo?',o:['El murciélago', 'El gorrión', 'El conejo'],t:'Sale de noche.'},
-    {q:'¿Qué animal tiene caparazón y camina muy despacio?',o:['La tortuga', 'El perro', 'El gato'],t:'Puede vivir muchísimos años.'},
-    {q:'¿Cuál de estos es un ave?',o:['El loro', 'El perro', 'El pez'],t:'Las aves tienen plumas.'},
-    {q:'¿Cuál de estos animales vive en la granja?',o:['El cerdo', 'El tigre', 'El elefante'],t:'Hace “oink”.'},
-    {q:'¿Qué animal tiene una cola de plumas de muchos colores?',o:['El pavo real', 'El pato', 'La gallina'],t:'Abre su cola como un abanico.'},
-    {q:'¿Qué animal es el mejor amigo del hombre?',o:['El perro', 'El león', 'La cebra'],t:'Siempre mueve la cola.'},
-    {q:'¿Qué animal sube a los árboles y le gustan las bananas?',o:['El mono', 'El pez', 'La vaca'],t:'Es muy travieso.'},
-    {q:'¿Qué animal hace “cuac cuac”?',o:['El pato', 'La gaviota', 'El delfín'],t:'El pato hace cuac.'}
+var Kani=QuizEngine($('qKani'),{key:'lumi-best-kani',title:'Animales y naturaleza',n:8,per:4,after:'¡Sos una experta en la naturaleza!',desc:'8 preguntas de animales, plantas y naturaleza. ¡Cada vez salen otras!',bank:[
+    {q:'¿Qué tipo de animal es la ballena?',o:['Mamífero', 'Pez', 'Reptil'],t:'Respira aire con pulmones y amamanta a sus crías.'},
+    {q:'¿Cuál de estos animales es un reptil?',o:['El cocodrilo', 'El delfín', 'El murciélago'],t:'Los reptiles tienen la piel con escamas.'},
+    {q:'¿Cómo se llaman los animales que comen solo plantas?',o:['Herbívoros', 'Carnívoros', 'Omnívoros'],t:'Como la vaca y el caballo.'},
+    {q:'¿Cómo se llaman los animales que comen carne?',o:['Carnívoros', 'Herbívoros', 'Vegetarianos'],t:'Como el león y el tigre.'},
+    {q:'¿Cómo se llama la casa de las abejas?',o:['Colmena', 'Madriguera', 'Nido'],t:'Allí hacen la miel.'},
+    {q:'¿Qué animal es el más veloz en tierra?',o:['El guepardo', 'El caballo', 'El león'],t:'Puede correr a más de 100 km/h.'},
+    {q:'¿Cuántos corazones tiene un pulpo?',o:['Tres', 'Uno', 'Dos'],t:'Tiene tres corazones y sangre azul.'},
+    {q:'¿Cómo respiran los peces?',o:['Con branquias', 'Con pulmones', 'Con la piel solamente'],t:'Toman el oxígeno que hay disuelto en el agua.'},
+    {q:'¿Cuál de estos animales es un anfibio?',o:['La rana', 'La tortuga', 'El lagarto'],t:'Vive en el agua de pequeño y en tierra de grande.'},
+    {q:'¿Qué animal es el único mamífero que puede volar?',o:['El murciélago', 'La ardilla voladora', 'El colibrí'],t:'Las aves vuelan, pero no son mamíferos.'},
+    {q:'¿Cuál es el ave más grande que existe?',o:['El avestruz', 'El cóndor', 'El águila'],t:'No puede volar, pero corre muy rápido.'},
+    {q:'¿Cómo se llama el proceso en el que la oruga se convierte en mariposa?',o:['Metamorfosis', 'Fotosíntesis', 'Hibernación'],t:'Pasa por la etapa de crisálida.'},
+    {q:'¿Qué animal duerme durante el invierno para ahorrar energía?',o:['El oso', 'El perro', 'El gato'],t:'Eso se llama hibernación.'},
+    {q:'¿Qué animal argentino tiene caparazón y se enrolla para protegerse?',o:['El armadillo (mulita)', 'El carpincho', 'El yaguareté'],t:'Se enrolla para protegerse.'},
+    {q:'¿Cuál es el felino más grande de América?',o:['El yaguareté', 'El puma', 'El ocelote'],t:'También se llama jaguar.'},
+    {q:'¿Cuál es el roedor más grande del mundo, común en Argentina y Brasil?',o:['El carpincho', 'La rata', 'La ardilla'],t:'Vive cerca del agua.'},
+    {q:'¿Cuál es el ave nacional de Argentina?',o:['El hornero', 'El tucán', 'El pingüino'],t:'Construye su nido de barro, como un horno.'},
+    {q:'¿Qué parte de la planta produce las semillas?',o:['La flor y el fruto', 'La raíz', 'El tallo'],t:'Los frutos protegen las semillas.'},
+    {q:'¿Qué necesitan las plantas para hacer fotosíntesis?',o:['Luz, agua y dióxido de carbono', 'Solo tierra', 'Solo viento'],t:'Producen su propio alimento y liberan oxígeno.'},
+    {q:'¿Qué animal vive más tiempo?',o:['La tortuga gigante', 'El perro', 'El conejo'],t:'Algunas pasan los 150 años.'},
+    {q:'¿Cuántas patas tiene un insecto?',o:['Seis', 'Ocho', 'Cuatro'],t:'Las arañas tienen ocho y no son insectos.'},
+    {q:'¿Qué animal tiene el mejor olfato, usado para rastrear?',o:['El perro', 'El pez', 'La paloma'],t:'Su olfato es miles de veces mejor que el nuestro.'},
+    {q:'¿Cómo se llama el conjunto de animales y plantas que viven en un lugar?',o:['Ecosistema', 'Planeta', 'Galaxia'],t:'Cada ser vivo cumple un rol.'},
+    {q:'¿Cuál de estos animales está en peligro de extinción?',o:['El yaguareté', 'La paloma', 'El gorrión'],t:'Por eso hay que cuidar su hábitat.'},
+    {q:'¿Qué animal tiene la lengua más larga en proporción a su cuerpo?',o:['El camaleón', 'El perro', 'El gato'],t:'La lanza para atrapar insectos.'},
+    {q:'¿Cómo se llama el grupo de lobos?',o:['Manada', 'Cardumen', 'Enjambre'],t:'Los peces forman cardúmenes.'},
+    {q:'¿Y el grupo de peces que nadan juntos?',o:['Cardumen', 'Manada', 'Bandada'],t:'Las aves forman bandadas.'},
+    {q:'¿Qué tipo de animal es el pingüino?',o:['Un ave que no vuela', 'Un mamífero marino', 'Un pez'],t:'Nada muy bien con sus alas en forma de aletas.'},
+    {q:'¿Qué animal marino tiene tentáculos y tinta?',o:['El pulpo', 'El delfín', 'La foca'],t:'Suelta tinta para escapar.'}
 ]});
-var Kmun=QuizEngine($('qKmun'),{key:'lumi-best-kmun',title:'Mundo de preguntas',n:8,per:4,after:'¡Sos una genia!',desc:'Colores, cuentos, números y más. 8 preguntas por ronda, siempre distintas.',bank:[
-    {q:'¿De qué color es el cielo en un día sin nubes?',o:['Azul', 'Verde', 'Rosa'],t:'El sol hace que se vea azul.'},
-    {q:'¿Qué color sale al mezclar rojo con amarillo?',o:['Naranja', 'Verde', 'Violeta'],t:'¡Como una naranja!'},
-    {q:'¿Cuántos días tiene una semana?',o:['Siete', 'Cinco', 'Diez'],t:'Lunes, martes, miércoles, jueves, viernes, sábado y domingo.'},
-    {q:'¿Cuántos dedos hay en una mano?',o:['Cinco', 'Seis', 'Cuatro'],t:'Con las dos manos son diez.'},
-    {q:'¿Qué forma tiene una pelota?',o:['Redonda', 'Cuadrada', 'Triangular'],t:'Es una esfera.'},
-    {q:'¿Cuántos lados tiene un triángulo?',o:['Tres', 'Cuatro', 'Cinco'],t:'Tri = tres.'},
-    {q:'¿Qué usamos para ver?',o:['Los ojos', 'Las orejas', 'La nariz'],t:'Los ojos son muy importantes.'},
-    {q:'¿Con qué parte del cuerpo oímos?',o:['Las orejas', 'Los pies', 'Las manos'],t:'También se llaman oídos.'},
-    {q:'¿Qué nos da el sol?',o:['Luz y calor', 'Lluvia', 'Nieve'],t:'Sin sol no habría vida.'},
-    {q:'¿Cómo se llama el cuento de la niña con capa roja?',o:['Caperucita Roja', 'Cenicienta', 'Blancanieves'],t:'Se encuentra con un lobo.'},
-    {q:'¿Qué personaje tiene la nariz larga cuando miente?',o:['Pinocho', 'Peter Pan', 'Pulgarcito'],t:'Su nariz crece.'},
-    {q:'¿Cuántos enanitos tiene Blancanieves?',o:['Siete', 'Cinco', 'Tres'],t:'Uno se llama Dormilón.'},
-    {q:'¿Qué fruta es amarilla y larga?',o:['La banana', 'La manzana', 'La uva'],t:'Se pela para comerla.'},
-    {q:'¿Qué fruta es roja y tiene semillitas por fuera?',o:['La frutilla', 'La naranja', 'La pera'],t:'¡Rica con crema!'},
-    {q:'¿Qué bebida sale de la vaca?',o:['La leche', 'El jugo', 'El agua'],t:'Es blanca y nutritiva.'},
-    {q:'¿Qué usamos para lavarnos los dientes?',o:['Cepillo y pasta', 'Un peine', 'Un jabón'],t:'Hay que hacerlo después de comer.'},
-    {q:'¿Qué nos protege de la lluvia?',o:['El paraguas', 'Los lentes', 'La bufanda'],t:'Se abre cuando llueve.'},
-    {q:'¿En qué estación hace más calor?',o:['Verano', 'Invierno', 'Otoño'],t:'Vamos a la playa.'},
-    {q:'¿Qué se usa para escribir en un cuaderno?',o:['El lápiz', 'El plato', 'La cuchara'],t:'Y se borra con la goma.'},
-    {q:'¿Cuál es el número que viene después del 9?',o:['10', '8', '11'],t:'Diez.'},
-    {q:'¿Qué número viene antes del 5?',o:['4', '6', '3'],t:'Cuatro.'},
-    {q:'¿De qué color es una banana madura?',o:['Amarilla', 'Azul', 'Roja'],t:'Verde cuando está verde.'},
-    {q:'¿Qué hay en el cielo de noche?',o:['La luna y las estrellas', 'El arcoíris', 'Las nubes de lluvia'],t:'¡Brillan mucho!'},
-    {q:'¿Cuántos colores tiene el arcoíris?',o:['Siete', 'Tres', 'Diez'],t:'Rojo, naranja, amarillo, verde, azul, índigo y violeta.'},
-    {q:'¿Qué hacemos con la nariz?',o:['Oler', 'Escuchar', 'Mirar'],t:'Olemos flores y comidas ricas.'},
-    {q:'¿Cómo se dice “hola” en inglés?',o:['Hello', 'Goodbye', 'Thanks'],t:'“Hello!”'},
-    {q:'¿Cómo se dice “gracias” en inglés?',o:['Thank you', 'Please', 'Sorry'],t:'“Thank you!”'},
-    {q:'¿Qué ropa usamos en invierno para el frío?',o:['Un abrigo', 'Un traje de baño', 'Unas ojotas'],t:'Nos mantiene calentitos.'}
+var Kmun=QuizEngine($('qKmun'),{key:'lumi-best-kmun',title:'Mundo de preguntas',n:8,per:4,after:'¡Sos una genia!',desc:'Geografía, historia, ciencias, lengua, inglés y más. 8 preguntas por ronda, siempre distintas.',bank:[
+    {q:'¿Cuál es la capital de Uruguay?',o:['Montevideo', 'Asunción', 'Santiago'],t:'Está a orillas del Río de la Plata.'},
+    {q:'¿Cuál es la capital de Chile?',o:['Santiago', 'Lima', 'Bogotá'],t:'Está cerca de la cordillera de los Andes.'},
+    {q:'¿Cuál es uno de los grandes ríos que forman el Río de la Plata?',o:['El Paraná', 'El Colorado', 'El Negro'],t:'Forma parte del Río de la Plata.'},
+    {q:'¿Cuál es la montaña más alta de América?',o:['El Aconcagua', 'El Fitz Roy', 'El Everest'],t:'Está en Mendoza, Argentina.'},
+    {q:'¿En qué año se declaró la independencia argentina?',o:['1816', '1810', '1853'],t:'Fue el 9 de julio, en Tucumán.'},
+    {q:'¿Qué ocurrió el 25 de mayo de 1810?',o:['La Revolución de Mayo', 'La Independencia', 'La Constitución'],t:'Comenzó el camino hacia la independencia.'},
+    {q:'¿Quién creó la bandera argentina?',o:['Manuel Belgrano', 'José de San Martín', 'Domingo Sarmiento'],t:'La creó en Rosario en 1812.'},
+    {q:'¿Quién cruzó los Andes con su ejército para liberar Chile y Perú?',o:['José de San Martín', 'Manuel Belgrano', 'Juan Manuel de Rosas'],t:'Lo hizo en 1817.'},
+    {q:'¿En qué continente está Brasil?',o:['América del Sur', 'África', 'Asia'],t:'Es el país más grande de la región.'},
+    {q:'¿Quién descubrió América en 1492?',o:['Cristóbal Colón', 'Fernando de Magallanes', 'Marco Polo'],t:'Llegó en tres carabelas.'},
+    {q:'¿Cuántos planetas tiene el sistema solar?',o:['Ocho', 'Nueve', 'Siete'],t:'Plutón es un planeta enano.'},
+    {q:'¿Qué planeta está más cerca del Sol?',o:['Mercurio', 'Venus', 'Marte'],t:'Es el más pequeño.'},
+    {q:'¿Qué es la gravedad?',o:['La fuerza que nos atrae hacia la Tierra', 'Un tipo de viento', 'Una luz del sol'],t:'Por eso las cosas caen al suelo.'},
+    {q:'¿En qué estado está el agua en el hielo?',o:['Sólido', 'Líquido', 'Gaseoso'],t:'Al calentarse se derrite.'},
+    {q:'¿A cuántos grados Celsius hierve el agua al nivel del mar?',o:['100', '50', '212'],t:'212 son grados Fahrenheit.'},
+    {q:'¿Cuál es el órgano que bombea la sangre?',o:['El corazón', 'El hígado', 'El pulmón'],t:'Late unas 100.000 veces al día.'},
+    {q:'¿Cuántos huesos tiene el cuerpo adulto?',o:['206', '150', '300'],t:'Los bebés nacen con más.'},
+    {q:'¿Qué es un sustantivo?',o:['La palabra que nombra personas, animales o cosas', 'La palabra que indica acción', 'La palabra que describe'],t:'Ejemplo: casa, perro, Ana.'},
+    {q:'¿Cuál de estas es un verbo?',o:['Correr', 'Mesa', 'Rápido'],t:'Los verbos indican acciones.'},
+    {q:'¿Cuál es el plural de “lápiz”?',o:['Lápices', 'Lápizes', 'Lápiz'],t:'Las palabras terminadas en z cambian a ces.'},
+    {q:'¿Quién escribió “El Principito”?',o:['Antoine de Saint-Exupéry', 'Roald Dahl', 'Julio Verne'],t:'Es un libro muy famoso en todo el mundo.'},
+    {q:'¿Quién escribió “Veinte mil leguas de viaje submarino”?',o:['Julio Verne', 'Mark Twain', 'Hans Andersen'],t:'Un clásico de aventuras.'},
+    {q:'¿Cómo se dice “gato” en inglés?',o:['Cat', 'Dog', 'Bird'],t:'“Cat”.'},
+    {q:'¿Cómo se dice “escuela” en inglés?',o:['School', 'Sky', 'Sun'],t:'“School”.'},
+    {q:'¿Cómo se dice “siete” en inglés?',o:['Seven', 'Eleven', 'Sixteen'],t:'“Seven”.'},
+    {q:'¿Qué significa “friend” en inglés?',o:['Amigo', 'Familia', 'Frío'],t:'“Friend”.'},
+    {q:'¿Cuántos grados tiene un ángulo recto?',o:['90', '180', '45'],t:'Como la esquina de un cuaderno.'},
+    {q:'¿Cuántos centímetros tiene un metro?',o:['100', '10', '1000'],t:'Centi = cien.'},
+    {q:'¿Cuántas horas tiene un día?',o:['24', '12', '60'],t:'Y una semana tiene 168.'},
+    {q:'¿Qué figura geométrica tiene cuatro lados iguales y cuatro ángulos rectos?',o:['Cuadrado', 'Rombo', 'Rectángulo'],t:'El rectángulo tiene lados opuestos iguales.'},
+    {q:'¿Qué instrumento se usa para medir ángulos?',o:['Transportador', 'Regla', 'Compás'],t:'Mide en grados.'},
+    {q:'¿Cuál es la capital de Brasil?',o:['Brasilia', 'São Paulo', 'Río de Janeiro'],t:'Se inauguró en 1960.'},
+    {q:'¿Qué océano está al este de Argentina?',o:['Atlántico', 'Pacífico', 'Índico'],t:'El Pacífico queda al otro lado de la cordillera.'},
+    {q:'¿Qué usamos para ver cosas muy pequeñas, como células?',o:['Microscopio', 'Telescopio', 'Periscopio'],t:'Amplía lo muy chiquito.'},
+    {q:'¿Cuál es el invento que permite hablar a distancia por voz?',o:['El teléfono', 'La imprenta', 'La brújula'],t:'Lo patentó Alexander Graham Bell.'}
 ]});
 var Kmath=(function(){
   function ri(a,b){ return a+Math.floor(Math.random()*(b-a+1)); }
-  function opts(c){ var set=[c]; var tries=0; while(set.length<3&&tries<40){ tries++; var w=c+ri(-5,5); if(w<0||set.indexOf(w)>=0) continue; set.push(w); } while(set.length<3) set.push(c+set.length+7); return set.map(String); }
+  function opts(c){ var set=[c]; var tries=0; var sp=c>60?10:5; while(set.length<3&&tries<60){ tries++; var w=c+ri(-sp,sp); if(w<0||set.indexOf(w)>=0) continue; set.push(w); } while(set.length<3) set.push(c+set.length+7); return set.map(String); }
   function mk(){
-    var kind=ri(0,3), a,b,c,q;
-    if(kind===0){ a=ri(2,15); b=ri(2,15); c=a+b; q=a+' + '+b; }
-    else if(kind===1){ a=ri(8,25); b=ri(1,a-1); c=a-b; q=a+' − '+b; }
-    else if(kind===2){ a=ri(2,9); b=ri(2,6); c=a*b; q=a+' × '+b; }
-    else { b=ri(2,6); c=ri(2,9); a=b*c; q=a+' ÷ '+b; }
+    var kind=ri(0,8), a,b,c,q,t;
+    if(kind===0){ a=ri(120,899); b=ri(120,899); c=a+b; q=a+' + '+b; }
+    else if(kind===1){ a=ri(300,999); b=ri(100,a-50); c=a-b; q=a+' − '+b; }
+    else if(kind===2){ a=ri(3,12); b=ri(3,12); c=a*b; q=a+' × '+b; }
+    else if(kind===3){ a=ri(12,99); b=ri(3,9); c=a*b; q=a+' × '+b; }
+    else if(kind===4){ b=ri(3,12); c=ri(4,15); a=b*c; q=a+' ÷ '+b; }
+    else if(kind===5){ b=ri(2,5); a=b*ri(2,12)*2; c=a/b; q=a+' ÷ '+b; }
+    else if(kind===6){ var d=[2,4,5,10][ri(0,3)], m=ri(2,9)*d; a=m; c=m/d; q='1/'+d+' de '+m; }
+    else if(kind===7){ a=ri(2,9); b=ri(2,9); var e=ri(2,9); c=a+b*e; q=a+' + '+b+' × '+e; }
+    else { a=ri(3,15); b=ri(3,15); c=2*(a+b); q='el perímetro de un rectángulo de '+a+' × '+b; return {q:'¿Cuánto es '+q+'?',o:opts(c),t:'2 × ('+a+' + '+b+') = '+c}; }
     return {q:'¿Cuánto es '+q+'?',o:opts(c),t:q+' = '+c};
   }
   function pick(){ var out=[]; while(out.length<8){ var x=mk(); if(!out.some(function(o){return o.q===x.q;})) out.push(x); } return out; }
@@ -1141,7 +1156,7 @@ var Kmath=(function(){
     customHome:function(root,begin){
       root.innerHTML='';
       var h=document.createElement('h2'); h.textContent='Cuentas divertidas'; root.appendChild(h);
-      var p=document.createElement('p'); p.textContent='Sumas, restas, tablas y divisiones. Cada ronda trae cuentas nuevas, ¡nunca se acaban!'; root.appendChild(p);
+      var p=document.createElement('p'); p.textContent='Sumas y restas grandes, tablas, divisiones, fracciones y problemas con perímetro. ¡Cada ronda trae cuentas nuevas!'; root.appendChild(p);
       var m=document.createElement('p'); m.textContent='Mejor resultado: '+(parseInt(Store.get('lumi-best-kmath','0'),10)||0)+' de 8'; root.appendChild(m);
       var b=document.createElement('button'); b.className='btn'; b.textContent='Empezar'; b.addEventListener('click',begin); root.appendChild(b);
     }});
@@ -1908,10 +1923,13 @@ var Fly=(function(){
 (function(){
   var el=document.getElementById('intro'); if(!el) return;
   var gone=false;
+  function start(){ requestAnimationFrame(function(){ requestAnimationFrame(function(){ el.classList.add('go'); }); }); }
+  if(document.readyState==='complete') start(); else window.addEventListener('load',start);
+  setTimeout(function(){ el.classList.add('go'); },1500);
   function close(){ if(gone) return; gone=true; el.classList.add('out'); setTimeout(function(){ el.style.display='none'; },700); }
   el.addEventListener('click',close);
   el.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' ') close(); });
-  setTimeout(close,4300);
+  setTimeout(close,5200);
 })();
 
 (function(){ var m=document.querySelector('.hero svg'); if(!m) return;
