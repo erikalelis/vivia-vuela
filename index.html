@@ -1,0 +1,1764 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1B0B24"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="Vivia Vuela"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png">
+<title>Vivia Vuela</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Concepto: arcade nocturno, redondeado y amable. Vivia, una hojita-conejo, guía varios mini juegos para practicar entrevistas, inglés y calma. */
+
+/* Concepto: un juego de arcade nocturno, redondeado y amable. Una hoja-espíritu (el logo de Vivia) atrapa ideas y esquiva nervios. */
+:root{
+  --night:#1B0B24; --plum:#3A1344; --berry:#C42F7F; --lake:#2A9AA3;
+  --cream:#FBF7F9; --gold:#FFD36B; --mute:#CDB9D6; --ink:#1F1A2E;
+  --f-display:'Fredoka','Trebuchet MS',system-ui,sans-serif;
+  --f-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  background:var(--night);color:var(--cream);font-family:var(--f-body);
+  margin:0;padding-inline:16px;padding-block:14px 26px;
+  display:flex;flex-direction:column;align-items:center;gap:14px;min-height:100%;
+}
+header{text-align:center;display:grid;gap:2px}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(1.7rem,6vw,2.3rem);margin:0;letter-spacing:.01em;text-wrap:balance}
+h1 span{color:var(--berry)}
+header p{margin:0;color:var(--mute);font-weight:700;font-size:.95rem}
+.stage{
+  position:relative;width:min(100%,400px,calc((100svh - 150px) * 9 / 16));min-width:260px;
+  aspect-ratio:9/16;border-radius:26px;overflow:hidden;
+  box-shadow:0 0 0 2px #ffffff14,0 18px 50px #00000066,0 0 60px #c42f7f33;
+  background:var(--plum);
+}
+canvas{display:block;width:100%;height:100%;touch-action:none;cursor:none}
+.overlay{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  padding:24px;text-align:center;background:linear-gradient(#1b0b2480,#1b0b24cc);
+}
+.overlay h2{font-family:var(--f-display);font-size:clamp(1.8rem,8vw,2.5rem);margin:0;font-weight:700;text-wrap:balance}
+.overlay p{margin:0;color:var(--mute);font-weight:700;max-width:26ch;line-height:1.35;text-wrap:balance}
+.big{font-family:var(--f-display);font-size:3rem;font-weight:700;color:var(--gold);line-height:1}
+.btn{
+  font-family:var(--f-display);font-weight:600;font-size:1.25rem;color:var(--cream);
+  background:linear-gradient(135deg,var(--berry),#E04A98);border:0;border-radius:999px;
+  padding:14px 38px;cursor:pointer;box-shadow:0 6px 0 #7A1646,0 10px 24px #c42f7f55;
+  transition:transform .12s,box-shadow .12s;
+}
+.btn:hover{transform:translateY(-1px)}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 #7A1646,0 4px 12px #c42f7f55}
+.btn:focus-visible,.ghost:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.ghost{
+  font-family:var(--f-body);font-weight:800;font-size:.9rem;color:var(--mute);background:none;
+  border:2px solid #ffffff26;border-radius:999px;padding:7px 16px;cursor:pointer;
+}
+.ghost:hover{color:var(--cream);border-color:#ffffff55}
+.how{display:flex;gap:14px;font-size:.85rem;color:var(--mute);font-weight:700;flex-wrap:wrap;justify-content:center}
+.how b{color:var(--gold)}
+footer{color:#cdb9d699;font-size:.82rem;font-weight:700;letter-spacing:.06em}
+footer b{color:var(--cream);letter-spacing:.14em}
+.btn.alt{background:linear-gradient(135deg,#1F8C95,#2FB3BD);box-shadow:0 6px 0 #14595f,0 10px 24px #2a9aa355;font-size:1.05rem;padding:11px 28px}
+.btn.alt:active{box-shadow:0 2px 0 #14595f,0 4px 12px #2a9aa355}
+.overlay{overflow:auto}
+#quiz{background:linear-gradient(#1b0b24f2,#1b0b24f8)}
+.skins{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.skin{font-family:var(--f-body);font-weight:800;font-size:.78rem;color:var(--cream);background:#ffffff12;border:2px solid #ffffff2b;border-radius:999px;padding:5px 11px 5px 8px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.skin i{display:inline-block;width:16px;height:16px;border-radius:50%}
+.skin[aria-pressed="true"]{border-color:var(--gold);background:#ffffff24}
+.skin:disabled{opacity:.5;cursor:default}
+.skin:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.tag{font-weight:800;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+#quiz h2{font-size:clamp(1.25rem,5.4vw,1.7rem);line-height:1.2}
+.opts{display:grid;gap:9px;width:100%}
+.opt{
+  font-family:var(--f-body);font-weight:800;font-size:.98rem;color:var(--cream);text-align:left;
+  background:#ffffff14;border:2px solid #ffffff2b;border-radius:16px;padding:11px 14px;cursor:pointer;
+}
+.opt:hover:not(:disabled){background:#ffffff24}
+.opt:disabled{cursor:default}
+.opt.good{background:#2a9aa3;border-color:#7fe0e6}
+.opt.bad{background:#a8245e;border-color:#ff8ec2}
+.opt:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+#qFb{min-height:2.7em;font-size:.92rem}
+.how{gap:8px 12px}
+@media (prefers-reduced-motion:reduce){.btn{transition:none}}
+
+/* ---------- Vivia: colección ---------- */
+:root{--wa:#C42F7F;--wb:#2A9AA3;--panel:#ffffff10;--panel-line:#ffffff24}
+.top{width:min(100%,440px);display:flex;align-items:center;gap:6px;min-height:40px}
+.top .sp{flex:1}
+.chip{white-space:nowrap;font-family:var(--f-body);font-weight:800;font-size:.85rem;color:var(--cream);background:var(--panel);border:2px solid var(--panel-line);border-radius:999px;padding:6px 11px;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.chip.static{cursor:default}
+.chip:hover:not(.static){border-color:#ffffff55}
+.chip:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.chip .st{color:var(--gold)}
+.hero{display:grid;justify-items:center;gap:4px;text-align:center}
+.hero svg{width:104px;height:auto;transform-origin:50% 100%;animation:hop 2.6s cubic-bezier(.3,0,.3,1) infinite;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.hero svg.jump{animation:bighop .9s cubic-bezier(.3,0,.3,1) 1}
+.hshadow{width:64px;height:10px;margin:-2px auto 6px;border-radius:50%;background:radial-gradient(#0009,#0000 70%);animation:hsh 2.6s cubic-bezier(.3,0,.3,1) infinite}
+@keyframes hop{0%,100%{transform:translateY(0) scale(1.08,.9)}12%{transform:translateY(0) scale(.94,1.08)}40%{transform:translateY(-34px) rotate(4deg) scale(1,1)}58%{transform:translateY(-34px) rotate(-4deg)}82%{transform:translateY(0) scale(1.08,.9)}90%{transform:translateY(-6px) scale(.98,1.03)}}
+@keyframes bighop{0%{transform:scale(1.1,.85)}35%{transform:translateY(-70px) rotate(-10deg) scale(.95,1.1)}55%{transform:translateY(-70px) rotate(10deg)}85%{transform:translateY(0) rotate(0) scale(1.1,.88)}100%{transform:none}}
+@keyframes hsh{0%,100%{transform:scale(1.1);opacity:.8}40%,58%{transform:scale(.55);opacity:.4}82%{transform:scale(1.1);opacity:.8}}
+@keyframes bob{50%{transform:translateY(-8px) rotate(2deg)}}
+.hero h1{font-size:clamp(2.2rem,9vw,3rem);margin:0}
+.hero p{margin:0;color:var(--mute);font-weight:700}
+.cards{width:min(100%,440px);display:grid;gap:12px}
+.card{
+  position:relative;display:grid;grid-template-columns:60px 1fr 14px;gap:3px 14px;align-items:center;text-align:left;
+  font-family:var(--f-body);color:var(--cream);border:2px solid #ffffff22;border-radius:22px;padding:14px 16px;cursor:pointer;
+  background:linear-gradient(135deg,var(--c1),var(--c2));box-shadow:0 5px 0 var(--c3),0 14px 30px #00000045,inset 0 1px 0 #ffffff40;
+  transition:transform .12s,box-shadow .12s;
+}
+.card:hover{transform:translateY(-2px)}
+.card:active{transform:translateY(3px);box-shadow:0 2px 0 var(--c3)}
+.card:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.card::before{content:'';position:absolute;inset:0;border-radius:20px;background:linear-gradient(160deg,#ffffff2e,#ffffff00 46%);pointer-events:none}
+.card::after{content:'';grid-row:1/3;grid-column:3;width:9px;height:9px;border-top:3px solid #ffffffb0;border-right:3px solid #ffffffb0;transform:rotate(45deg);justify-self:center}
+.card .ic{grid-row:span 2;width:60px;height:60px;border-radius:19px;background:linear-gradient(150deg,#ffffff42,#ffffff12);border:1.5px solid #ffffff40;box-shadow:inset 0 1px 0 #ffffff55,0 4px 10px #0003;display:grid;place-items:center}
+.card .ic svg{width:40px;height:40px;filter:drop-shadow(0 2px 2px #0003)}
+.card b{letter-spacing:.005em}
+.card b{font-family:var(--f-display);font-size:1.25rem;font-weight:600;line-height:1.1;align-self:end}
+.card span{font-weight:700;font-size:.88rem;opacity:.92;align-self:start}
+.skinbox{width:min(100%,440px);display:grid;gap:8px;justify-items:center;text-align:center}
+.skinbox small{color:var(--mute);font-weight:700}
+.module{width:min(100%,440px);display:grid;gap:14px;justify-items:center}
+.panel{width:100%;background:var(--panel);border:2px solid var(--panel-line);border-radius:24px;padding:20px 18px;display:grid;gap:12px;justify-items:center;text-align:center}
+.panel h2{font-family:var(--f-display);margin:0;font-size:1.6rem;font-weight:700;text-wrap:balance}
+.panel p{margin:0;color:var(--mute);font-weight:700;line-height:1.4;text-wrap:balance}
+.bar{width:100%;height:10px;border-radius:99px;background:#ffffff1c;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--lake),var(--gold));border-radius:99px;transition:width .3s}
+.qmeta{display:flex;justify-content:space-between;width:100%;font-weight:800;font-size:.85rem;color:var(--mute)}
+.qq{font-family:var(--f-display);font-size:1.4rem;font-weight:600;line-height:1.25;margin:0;text-wrap:balance}
+.panel .opts{width:100%}
+/* memoria */
+.mem{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%}
+.mc{perspective:600px;aspect-ratio:1/1.05;border:0;background:none;padding:0;cursor:pointer}
+.mc .in{position:relative;width:100%;height:100%;transition:transform .45s;transform-style:preserve-3d;display:block}
+.mc.on .in{transform:rotateY(180deg)}
+.mc .f,.mc .b{position:absolute;inset:0;border-radius:18px;display:grid;place-items:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;padding:6px;font-family:var(--f-display);font-weight:600;line-height:1.1;text-wrap:balance}
+.mc .f{background:linear-gradient(135deg,var(--wa),#7A1646);box-shadow:inset 0 0 0 3px #ffffff30}
+.mc .f svg{width:46%;height:auto;opacity:.9}
+.mc .b{transform:rotateY(180deg);background:var(--cream);color:var(--ink);font-size:clamp(.82rem,3.6vw,1.05rem);box-shadow:inset 0 0 0 3px #00000010}
+.mc.ok .b{background:#bff0f3;box-shadow:inset 0 0 0 3px var(--lake)}
+.mc:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:18px}
+.stats{display:flex;gap:18px;font-weight:800;color:var(--mute)}
+.stats b{color:var(--cream);font-family:var(--f-display);font-size:1.2rem}
+/* calma */
+.breath{position:relative;width:min(70vw,260px);aspect-ratio:1;display:grid;place-items:center;margin-block:6px}
+.breath .ring{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,#2a9aa355,#2a9aa300 68%);border:2px solid #2a9aa377;will-change:transform}
+.breath svg{width:46%;height:auto;will-change:transform;position:relative}
+.cue{font-family:var(--f-display);font-size:1.8rem;font-weight:600;min-height:1.3em}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.row .chip[aria-pressed="true"]{border-color:var(--gold);background:#ffffff24}
+.note{font-size:.82rem;color:#cdb9d6aa}
+
+.word{font-family:var(--f-display);font-weight:600;font-size:clamp(1.6rem,8vw,2.3rem);letter-spacing:.14em;min-height:1.4em;word-break:break-all}
+.lives{color:#FF6FB0;letter-spacing:.2em;font-size:1.2rem}
+.kb{display:grid;grid-template-columns:repeat(9,1fr);gap:6px;width:100%}
+.key{font-family:var(--f-body);font-weight:800;font-size:.95rem;color:var(--cream);background:#ffffff14;border:2px solid #ffffff26;border-radius:10px;padding:8px 0;cursor:pointer}
+.key:disabled{cursor:default;opacity:.35}
+.key.hit{background:var(--lake);border-color:#7fe0e6;opacity:1}
+.key.miss{background:#a8245e66}
+.key:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
+.slots{display:flex;flex-wrap:wrap;gap:8px;min-height:58px;width:100%;padding:10px;border-radius:16px;border:2px dashed #ffffff33;justify-content:center;align-content:center}
+.slots.good{border-color:#7fe0e6;background:#2a9aa322}
+.wchip{font-family:var(--f-body);font-weight:800;font-size:1rem;color:var(--ink);background:var(--cream);border:0;border-radius:12px;padding:8px 12px;cursor:pointer;box-shadow:0 3px 0 #b9a8c4}
+.wchip:disabled{opacity:.25;box-shadow:none;cursor:default}
+.wchip:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.fld{width:100%;font-family:var(--f-body);font-weight:700;font-size:1rem;color:var(--cream);background:#ffffff12;border:2px solid #ffffff2b;border-radius:14px;padding:11px 13px}
+.fld:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.lbl{width:100%;text-align:left;font-weight:800;font-size:.85rem;color:var(--mute);display:grid;gap:5px}
+.rt{width:100%;display:grid;gap:10px;text-align:left}
+.rtc{display:flex;gap:10px;align-items:center;background:#ffffff12;border-radius:16px;padding:12px}
+.rtc p{flex:1;margin:0;font-weight:800;line-height:1.3}
+.rtc small{display:block;color:var(--mute);font-weight:800;margin-top:3px}
+.rtc.ok p{opacity:.55;text-decoration:line-through}
+.rtc button{font-family:var(--f-body);font-weight:800;border:0;border-radius:12px;padding:9px 12px;cursor:pointer;color:#fff;background:linear-gradient(180deg,var(--berry),#8E2A78)}
+.rtc button.sw{background:#ffffff1f;margin-top:6px;font-size:.75rem;padding:6px 9px;display:block}
+.rtc button:disabled{opacity:.5;cursor:default}
+.rtc button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.zhud{position:absolute;left:0;right:0;bottom:10px;display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none;font-weight:800;color:#fff;text-shadow:0 1px 6px #0007;font-size:.85rem}
+#znPhrase{opacity:.85;font-size:.8rem;padding:0 14px;text-align:center}
+.hist{width:100%;text-align:left;display:grid;gap:8px}
+.hist div{background:#ffffff0d;border-radius:12px;padding:9px 12px;font-weight:700;font-size:.9rem;overflow-wrap:anywhere}
+.hist small{color:var(--mute);display:block;font-weight:800}
+.grp{width:min(100%,440px);margin:6px 0 -2px;font-size:.78rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+#share{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:16px;background:#1b0b24d9;backdrop-filter:blur(4px)}
+#share .panel{max-width:420px;background:#2a1136;box-shadow:0 20px 60px #000a}
+#shareTxt{width:100%;min-height:128px;resize:none;font-family:var(--f-body);font-weight:700;font-size:.95rem;line-height:1.4;color:var(--cream);background:#ffffff10;border:2px solid #ffffff2b;border-radius:14px;padding:10px 12px}
+
+.lvl{width:min(100%,360px);display:grid;gap:6px;margin-top:10px;text-align:left}
+.lvtop{display:flex;justify-content:space-between;gap:10px;font-weight:800;font-size:.95rem}
+.lvtop span{color:var(--gold)}
+.lvl small{color:var(--mute);font-weight:700}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;background:linear-gradient(135deg,#C42F7F,#E04A98);color:var(--cream);font-family:var(--f-display);font-weight:600;font-size:1.05rem;padding:12px 22px;border-radius:999px;box-shadow:0 10px 30px #000a;max-width:92vw;text-align:center}
+
+.stage.bub{aspect-ratio:360/520;width:min(100%,400px,calc((100svh - 150px) * 360 / 520))}
+.sgrid{display:grid;grid-template-columns:repeat(9,1fr);gap:3px;width:100%}
+.sc{aspect-ratio:1;padding:0;font-family:var(--f-body);font-weight:800;font-size:clamp(.8rem,3.8vw,1.05rem);color:var(--cream);background:#ffffff12;border:0;border-radius:8px;cursor:pointer;display:grid;place-items:center}
+.sc:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
+.sc.sel{background:var(--gold);color:var(--ink)}
+.sc.f0{background:#C42F7F}.sc.f1{background:#2A9AA3}.sc.f2{background:#E68A2E}.sc.f3{background:#6E5BD0}.sc.f4{background:#2FA38A}.sc.f5{background:#B8356B}
+.wl{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.wl span{font-weight:800;font-size:.82rem;letter-spacing:.06em;background:#ffffff14;border-radius:999px;padding:4px 10px}
+.wl span.found{text-decoration:line-through;opacity:.5}
+.endstats{display:flex;gap:14px;font-weight:800;color:var(--mute);font-size:.85rem;flex-wrap:wrap;justify-content:center}
+.endstats b{color:var(--cream)}
+
+#intro{position:fixed;inset:0;z-index:99;background:radial-gradient(120% 90% at 50% 38%,#4A1659 0%,#2A0F36 45%,#1B0B24 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;transition:opacity .6s ease,visibility .6s}
+#intro.out{opacity:0;visibility:hidden}
+#intro .burst{position:absolute;left:50%;top:40%;width:560px;height:560px;margin:-280px 0 0 -280px;border-radius:50%;background:radial-gradient(circle,rgba(255,226,240,.9) 0%,rgba(243,108,174,.5) 28%,rgba(168,36,94,0) 68%);opacity:0;transform:scale(.2);animation:ibur 1.6s .5s ease-out forwards}
+@keyframes ibur{0%{opacity:0;transform:scale(.2)}35%{opacity:1}100%{opacity:.25;transform:scale(1.15)}}
+#intro svg.mk{position:relative;width:min(46vw,190px);height:auto;overflow:visible;z-index:2}
+#intro .lf{transform-box:fill-box;transform-origin:50% 100%;opacity:0}
+#intro .l1{animation:igrow 1s .35s cubic-bezier(.2,1.4,.4,1) forwards}
+#intro .l2{animation:igrow 1s .55s cubic-bezier(.2,1.4,.4,1) forwards}
+@keyframes igrow{0%{opacity:0;transform:scale(0) rotate(0)}100%{opacity:1;transform:scale(1) rotate(0)}}
+#intro .face{opacity:0;transform-box:fill-box;transform-origin:center;animation:ipop .6s 1s cubic-bezier(.2,1.6,.4,1) forwards}
+@keyframes ipop{0%{opacity:0;transform:scale(.3)}100%{opacity:1;transform:scale(1)}}
+#intro .wm{position:relative;z-index:2;margin-top:10px;font-family:var(--f-display);font-weight:700;font-size:clamp(2.6rem,13vw,4.4rem);letter-spacing:-.03em;color:#fff;line-height:1;display:flex;overflow:hidden;padding:6px 4px}
+#intro .wm span{display:inline-block;opacity:0;transform:translateY(60%) scale(.9);filter:blur(10px);animation:iletter .7s cubic-bezier(.2,.9,.3,1) forwards}
+#intro .wm span.b{color:#F36CAE}
+@keyframes iletter{to{opacity:1;transform:none;filter:blur(0)}}
+#intro .tl{position:relative;z-index:2;margin-top:8px;font-weight:800;color:#E9D9F0;opacity:0;animation:ifade .8s 2.1s forwards;font-size:clamp(.95rem,4vw,1.15rem);text-align:center;padding:0 20px}
+#intro .by{position:absolute;bottom:34px;left:0;right:0;text-align:center;opacity:0;animation:ifade .8s 2.4s forwards}
+#intro .by i{display:block;width:44px;height:2px;margin:0 auto 12px;background:linear-gradient(90deg,transparent,#fff,transparent);opacity:.8}
+#intro .by small{display:block;font-size:.7rem;letter-spacing:.34em;text-transform:uppercase;color:#CDB9D6;font-weight:800}
+#intro .by b{display:block;margin-top:5px;font-family:var(--f-display);font-size:1.5rem;letter-spacing:.14em;text-transform:uppercase;color:#fff}
+#intro .sk{position:absolute;bottom:92px;left:0;right:0;text-align:center;font-size:.72rem;color:#CDB9D6;opacity:0;animation:ifade 1s 3s forwards;font-weight:800}
+@keyframes ifade{to{opacity:1}}
+#intro .sw{position:absolute;top:0;bottom:0;width:110px;left:-140px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:isw 1.2s 1.9s ease-in-out forwards;z-index:3}
+@keyframes isw{to{left:120%}}
+#intro .sp{position:absolute;width:10px;height:10px;background:#FFD36B;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);opacity:0;animation:itw 2s ease-in-out infinite}
+@keyframes itw{0%,100%{opacity:0;transform:scale(.3) rotate(0)}50%{opacity:1;transform:scale(1) rotate(90deg)}}
+@media (prefers-reduced-motion:reduce){#intro *{animation-duration:.01s!important;animation-delay:0s!important}}
+
+.cf{position:fixed;top:-12px;width:9px;height:14px;border-radius:2px;z-index:90;pointer-events:none;animation:cfall 2.4s ease-in forwards}
+@keyframes cfall{to{transform:translate(var(--dx),105vh) rotate(var(--rt));opacity:.9}}
+.cards .card{animation:cin .55s cubic-bezier(.2,.9,.3,1) both}
+@keyframes cin{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+.snd{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+.snd button{font-family:var(--f-body);font-weight:800;border:0;border-radius:999px;padding:8px 14px;background:#ffffff1a;color:var(--cream);cursor:pointer}
+.snd button[aria-pressed=true]{background:linear-gradient(180deg,var(--berry),#8E2A78)}
+.snd button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.codebox{font-family:var(--f-display);font-size:2rem;letter-spacing:.2em;color:var(--gold);margin:6px 0}
+@media (prefers-reduced-motion:reduce){.cf{display:none}.cards .card{animation:none}}
+@media (prefers-reduced-motion:reduce){.hshadow{animation:none}.hero svg{animation:none}.mc .in{transition:none}.card{transition:none}}
+
+</style>
+<style>html,body{margin:0;background:#1B0B24}</style></head><body>
+
+<div id="intro" role="button" tabindex="0" aria-label="Entrar a Vivia Vuela">
+  <div class="burst"></div><div class="sw"></div><i class="sp" style="left:22%;top:28%;animation-delay:1.4s"></i><i class="sp" style="left:78%;top:24%;animation-delay:1.9s"></i><i class="sp" style="left:15%;top:52%;animation-delay:2.3s"></i><i class="sp" style="left:86%;top:50%;animation-delay:1.6s"></i><i class="sp" style="left:32%;top:70%;animation-delay:2.6s"></i><i class="sp" style="left:70%;top:68%;animation-delay:2.1s"></i>
+  <svg class="mk" viewBox="-40 -80 80 110" aria-hidden="true"><g transform="translate(0,12)"><g transform="translate(-2,-6) rotate(-34) scale(1.05)"><path class="lf l1" d="M0 0C-11 -9 -12 -30 0 -40C12 -30 11 -9 0 0Z" style="fill:#C42F7F"/></g><g transform="translate(2,-6) rotate(34) scale(1.05)"><path class="lf l2" d="M0 0C-11 -9 -12 -30 0 -40C12 -30 11 -9 0 0Z" style="fill:#2A9AA3"/></g><g class="face"><circle cx="0" cy="2" r="13" fill="#FBF7F9"/><circle cx="-4.5" cy="0" r="2" fill="#1F1A2E"/><circle cx="4.5" cy="0" r="2" fill="#1F1A2E"/><path d="M-3.4 4.4Q0 8 3.4 4.4" stroke="#1F1A2E" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="-8.4" cy="5" r="2.6" fill="#E04A98" opacity=".35"/><circle cx="8.4" cy="5" r="2.6" fill="#E04A98" opacity=".35"/></g></g></svg>
+  <div class="wm" aria-hidden="true"><span style="animation-delay:1.30s">V</span><span style="animation-delay:1.37s">i</span><span style="animation-delay:1.44s">v</span><span style="animation-delay:1.51s">i</span><span style="animation-delay:1.58s">a</span><span style="animation-delay:1.65s">&nbsp;</span><span class="b" style="animation-delay:1.72s">V</span><span class="b" style="animation-delay:1.79s">u</span><span class="b" style="animation-delay:1.86s">e</span><span class="b" style="animation-delay:1.93s">l</span><span class="b" style="animation-delay:2.00s">a</span></div>
+  <div class="tl">Minijuegos para jugar, practicar y esperar</div>
+  <div class="by"><i></i><small>Hecho por</small><b>Bluvia</b></div>
+  <div class="sk">Tocá para entrar</div>
+</div>
+<div class="top">
+  <button class="chip" id="back" hidden>← Inicio</button>
+  <span class="sp"></span>
+  <button class="chip" id="shareBtn">Compartir</button>
+  <span class="chip static" aria-live="polite"><span class="st">★</span> <span id="starsN">0</span></span>
+  <button class="chip" id="snd" aria-pressed="true">Sonido: sí</button>
+</div>
+
+<div id="home" style="display:contents">
+  <header class="hero">
+    <svg viewBox="-40 -80 80 110" aria-hidden="true"><g transform="translate(0,12)"><path d="M0 0C-11 -9 -12 -30 0 -40C12 -30 11 -9 0 0Z" transform="translate(-2,-6) rotate(-34) scale(1.05)" style="fill:var(--wa)"/><path d="M0 0C-11 -9 -12 -30 0 -40C12 -30 11 -9 0 0Z" transform="translate(2,-6) rotate(34) scale(1.05)" style="fill:var(--wb)"/><circle cx="0" cy="2" r="13" fill="#FBF7F9"/><circle cx="-4.5" cy="0" r="2" fill="#1F1A2E"/><circle cx="4.5" cy="0" r="2" fill="#1F1A2E"/><path d="M-3.4 4.4Q0 8 3.4 4.4" stroke="#1F1A2E" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="-8.4" cy="5" r="2.6" fill="#E04A98" opacity=".35"/><circle cx="8.4" cy="5" r="2.6" fill="#E04A98" opacity=".35"/></g></svg>
+    <div class="hshadow" aria-hidden="true"></div>
+    <h1>Vivia <span style="color:var(--berry)">Vuela</span></h1>
+    <p>Dieciséis minijuegos para jugar, practicar, esperar y entrar con calma.</p>
+    <div class="lvl" aria-label="Tu nivel"><div class="lvtop"><b id="lvName"></b><span id="lvStreak"></span></div><div class="bar"><i id="lvFill"></i></div><small id="lvNext"></small></div>
+  </header>
+  <nav class="cards" aria-label="Módulos">
+    <h3 class="grp">Jugar</h3>
+    <button class="card" data-go="fly" style="--c1:#C42F7F;--c2:#8E2A78;--c3:#5E1450"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 36C14.5 32 12.5 18 20 8c7.5 4.5 8.5 15 4 28z" fill="#FBF7F9"/><path d="M24 36c9.500-4 11.500-18 4-28-7.500 4.500-8.500 15-4 28z" fill="#FFD36B"/><circle cx="24" cy="39" r="5" fill="#FBF7F9"/><circle cx="22.300" cy="38.300" r="1" fill="#7A1646"/><circle cx="25.700" cy="38.300" r="1" fill="#7A1646"/><path d="M38 12l1.200 2.800L42 16l-2.800 1.200L38 20l-1.200-2.800L34 16l2.800-1.200z" fill="#FFD36B"/><path d="M9 20l.8 1.800L11.600 22.600 9.800 23.400 9 25.200 8.200 23.400 6.400 22.600 8.200 21.800z" fill="#FBF7F9"/></svg></span><b>Vivia al vuelo</b><span>Atrapá estrellas y esquivá las nubes</span></button>
+    <button class="card" data-go="hang" style="--c1:#B8397A;--c2:#7A2F8C;--c3:#4A1A5C"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="4" y="14" width="12" height="16" rx="3.500" fill="#FBF7F9"/><rect x="18" y="14" width="12" height="16" rx="3.500" fill="#FFD36B"/><rect x="32" y="14" width="12" height="16" rx="3.500" fill="#FFFFFF55"/><path d="M7.500 26l2.500-8 2.500 8M8.500 23.500h3" stroke="#7A2F8C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M21.500 22.500l2.500 2.500 4-6" stroke="#8A4A0C" stroke-width="2.200" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M35 34h6" stroke="#FBF7F9" stroke-width="2.500" stroke-linecap="round"/><path d="M5 38h38" stroke="#FFFFFF66" stroke-width="2" stroke-linecap="round"/></svg></span><b>Adiviná la palabra</b><span>Ahorcado con palabras en español e inglés</span></button>
+    <button class="card" data-go="cine" style="--c1:#7C5CFF;--c2:#5A3FC0;--c3:#352085"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="12" width="36" height="26" rx="5" fill="#FBF7F9"/><path d="M6 20h36" stroke="#7C5CFF" stroke-width="2.4"/><path d="M19 25l10 5-10 5z" fill="#7C5CFF"/><path d="M12 12l5-6M22 12l5-6M32 12l5-6" stroke="#FFD36B" stroke-width="3" stroke-linecap="round"/></svg></span><b>Cine y música</b><span>Trivia de películas, cantantes y bandas</span></button>
+    <button class="card" data-go="acert" style="--c1:#D9822B;--c2:#B85A1E;--c3:#7A3410"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="21" r="14" fill="#FBF7F9"/><path d="M18 18c0-4 3-6 6-6s6 2 6 5c0 4-6 4-6 8" stroke="#B85A1E" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="24" cy="31" r="2.2" fill="#B85A1E"/><path d="M20 38h8" stroke="#FFD36B" stroke-width="3" stroke-linecap="round"/></svg></span><b>Acertijos</b><span>Adivinanzas para pensar y sonreír</span></button>
+    <button class="card" data-go="duelo" style="--c1:#E0577F;--c2:#C42F7F;--c3:#7A1646"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="16" cy="18" r="8" fill="#FBF7F9"/><circle cx="32" cy="18" r="8" fill="#FFD36B"/><path d="M6 40c0-7 5-11 10-11s10 4 10 11M22 40c0-7 5-11 10-11s10 4 10 11" fill="#FFFFFFAA"/><path d="M24 6l2 4 4 1-3 3 1 4-4-2-4 2 1-4-3-3 4-1z" fill="#FFD36B" transform="translate(0,-3) scale(.9)"/></svg></span><b>Duelo con amigos</b><span>Mismas preguntas, ¡a ver quién gana!</span></button>
+    <button class="card" data-go="memory" style="--c1:#1F8C95;--c2:#2A6F9A;--c3:#124A63"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="6" y="9" width="20" height="28" rx="4.500" fill="#FFFFFF66" transform="rotate(-9 16 23)"/><rect x="20" y="9" width="20" height="28" rx="4.500" fill="#FBF7F9" transform="rotate(8 30 23)"/><path d="M30 17l2.200 4.600 5 .6-3.700 3.400 1 5L30 28.200 25.500 30.600l1-5-3.700-3.400 5-.6z" fill="#FFD36B" transform="rotate(8 30 23)"/></svg></span><b>Memoria bilingüe</b><span>Uní cada palabra con su traducción</span></button>
+    <h3 class="grp">Practicar</h3>
+    <button class="card" data-go="english" style="--c1:#E68A2E;--c2:#D4572E;--c3:#8F3416"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M7 9h26a4 4 0 0 1 4 4v13a4 4 0 0 1-4 4H20l-8 7v-7H7a4 4 0 0 1-4-4V13a4 4 0 0 1 4-4z" fill="#FBF7F9"/><path d="M11 16h14M11 22h9" stroke="#C97A1A" stroke-width="2.600" stroke-linecap="round"/><rect x="27" y="26" width="18" height="13" rx="4" fill="#FFD36B"/><path d="M32 30.500h8M32 34h5" stroke="#8A4A0C" stroke-width="2" stroke-linecap="round"/></svg></span><b>Inglés Express</b><span>Preguntas rápidas de inglés laboral</span></button>
+    <button class="card" data-go="order" style="--c1:#D4A017;--c2:#C97A1A;--c3:#8A4A0C"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="4" y="8" width="17" height="10" rx="3.500" fill="#FBF7F9"/><rect x="24" y="8" width="20" height="10" rx="3.500" fill="#FFD36B"/><rect x="4" y="21" width="24" height="10" rx="3.500" fill="#FFFFFF66"/><rect x="31" y="21" width="13" height="10" rx="3.500" fill="#FBF7F9"/><rect x="4" y="34" width="14" height="8" rx="3.500" fill="#FFD36B"/><path d="M23 38h21" stroke="#FFFFFF66" stroke-width="2.600" stroke-linecap="round" stroke-dasharray="1 5.500"/></svg></span><b>Ordená la frase</b><span>Armá frases en inglés palabra por palabra</span></button>
+    <button class="card" data-go="interview" style="--c1:#6E5BD0;--c2:#4B3FA8;--c3:#2D2570"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="20" cy="15" r="8" fill="#FBF7F9"/><path d="M4 41c1.500-9 8-13 16-13s14.500 4 16 13z" fill="#FBF7F9"/><path d="M33 9h10a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-3l-4 4v-4h-3a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3z" fill="#FFD36B"/><circle cx="35" cy="15" r="1.300" fill="#2D2570"/><circle cx="39" cy="15" r="1.300" fill="#2D2570"/></svg></span><b>Entrevista relámpago</b><span>Elegí la mejor respuesta</span></button>
+    <button class="card" data-go="tf" style="--c1:#3C7DD9;--c2:#3157B8;--c3:#1E3A80"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="17" cy="19" r="12" fill="#FBF7F9"/><path d="M11 19.500l4.500 4.500 8-9" stroke="#3157B8" stroke-width="3.200" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="31" cy="30" r="12" fill="#FFD36B"/><path d="M26 25l10 10M36 25L26 35" stroke="#1E3A80" stroke-width="3.200" stroke-linecap="round"/></svg></span><b>Verdadero o falso</b><span>Curiosidades que te van a sorprender</span></button>
+    <h3 class="grp">Para esperar</h3>
+    <button class="card" data-go="endless" style="--c1:#2D8CC4;--c2:#2B5FAE;--c3:#173C78"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M13 31c-6.500 0-9.500-4-9.500-7s3-7 9.500-7c8 0 14 14 22 14 6.500 0 9.500-4 9.500-7s-3-7-9.500-7c-8 0-14 14-22 14z" fill="none" stroke="#FBF7F9" stroke-width="4.500" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 0)"/><circle cx="35" cy="31" r="3.500" fill="#FFD36B"/></svg></span><b>Pasatiempo sin fin</b><span>Preguntas que nunca se terminan</span></button>
+    <button class="card" data-go="search" style="--c1:#2FA38A;--c2:#1F7F6A;--c3:#115443"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><rect x="5" y="5" width="38" height="38" rx="8" fill="#FBF7F9"/><path d="M12 15h4M20 15h4M28 15h4M12 23h4M20 23h4M28 23h4M12 31h4M20 31h4M28 31h4" stroke="#1F7F8C" stroke-width="3" stroke-linecap="round" opacity=".45"/><path d="M11 36l24-24" stroke="#FFB020" stroke-width="5.500" stroke-linecap="round" opacity=".9"/></svg></span><b>Sopa de letras</b><span>Una distinta cada vez</span></button>
+    <button class="card" data-go="bubbles" style="--c1:#E0577F;--c2:#E0803A;--c3:#8A3A1B"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="17" cy="29" r="12" fill="#FBF7F9" opacity=".9"/><circle cx="33" cy="17" r="8" fill="#FFD36B"/><circle cx="35" cy="34" r="5.500" fill="#FFFFFF77"/><path d="M12 24a7 7 0 0 1 5-4" stroke="#C4577F" stroke-width="2.200" stroke-linecap="round" fill="none"/><path d="M31 14a4 4 0 0 1 3-1.500" stroke="#B8651A" stroke-width="2" stroke-linecap="round" fill="none"/></svg></span><b>Burbujas</b><span>30 segundos para explotar todas</span></button>
+    <h3 class="grp">Bienestar</h3>
+    <button class="card" data-go="calm" style="--c1:#2FA38A;--c2:#1F7F8C;--c3:#125A60"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="none" stroke="#FFFFFF55" stroke-width="2.500"/><circle cx="24" cy="24" r="14" fill="#FFFFFF33"/><circle cx="24" cy="24" r="8" fill="#FBF7F9"/><path d="M19.500 24.500q4.500 5 9 0" stroke="#125A60" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="38" cy="10" r="3" fill="#FFD36B"/></svg></span><b>Respirá con Vivia</b><span>Calmá los nervios en un minuto</span></button>
+    <button class="card" data-go="zen" style="--c1:#2A9AA3;--c2:#3E6FA8;--c3:#233C70"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 36C16 33 12 24 15 14c5 3 8 9 9 22z" fill="#FBF7F9"/><path d="M24 36c8-3 12-12 9-22-5 3-8 9-9 22z" fill="#FFFFFFB0"/><path d="M24 38C22 28 22 18 24 8c2 10 2 20 0 30z" fill="#FFD36B"/><path d="M8 40q16 -5 32 0" stroke="#FFFFFF88" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg></span><b>Jardín en calma</b><span>Tocá y hacé florecer un jardín con sonidos suaves</span></button>
+    <button class="card" data-go="grat" style="--c1:#E0577F;--c2:#B8356B;--c3:#7A1F4B"><span class="ic"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 41S6 31 6 18.500A9.500 9.500 0 0 1 24 14a9.500 9.500 0 0 1 18 4.500C42 31 24 41 24 41z" fill="#FBF7F9"/><path d="M38 5l1.300 3 3 1.300-3 1.300L38 13.600l-1.300-3-3-1.300 3-1.300z" fill="#FFD36B"/><path d="M13 20c0-3 2-5 5-5" stroke="#E0577F" stroke-width="2.400" fill="none" stroke-linecap="round" opacity=".55"/></svg></span><b>Retos del día</b><span>Tres mini desafíos nuevos cada día, con estrellas</span></button>
+  </nav>
+  <div class="skinbox"><small>Color de Vivia · se desbloquea con estrellas</small><div class="skins" id="skins" role="group" aria-label="Color de Vivia"></div></div>
+</div>
+
+<section class="module" id="m-fly" hidden>
+<main class="stage" id="stage">
+  <canvas id="c" aria-label="Juego Vivia"></canvas>
+  <div class="overlay" id="menu">
+    <h2>¡Vamos a volar!</h2>
+    <p>Mové a Vivia y atrapá las estrellas. Esquivá las nubes grises.</p>
+    <div class="how"><span><b>★</b> suma</span><span><b>☁</b> resta una vida</span><span><b>♥</b> te cura</span></div>
+    <div class="how"><span><b>Escudo</b> frena una nube</span><span><b>Imán</b> atrae estrellas</span><span><b>Reloj</b> cámara lenta</span></div>
+    <button class="btn" id="play">Clásico</button>
+    <button class="btn alt" id="playTime">Contrarreloj · 60 s</button>
+  </div>
+  <div class="overlay" id="over" hidden>
+    <h2>¡Buen vuelo!</h2>
+    <div class="big" id="finalScore">0</div>
+    <p id="finalMsg"></p>
+    <p id="bestMsg"></p>
+    <button class="btn" id="again">Volver a jugar</button>
+    <button class="ghost" id="toMenu">Cambiar de modo</button>
+  </div>
+  <div class="overlay" id="quiz" hidden>
+    <span class="tag">Pregunta relámpago</span>
+    <h2 id="qText"></h2>
+    <div class="opts" id="qOpts"></div>
+    <p id="qFb" aria-live="polite"></p>
+    <button class="btn" id="qNext" hidden>Seguir volando</button>
+  </div>
+</main>
+</section>
+
+<section class="module" id="m-memory" hidden>
+  <div class="panel">
+    <h2>Memoria bilingüe</h2>
+    <p id="memHelp">Dá vuelta dos cartas por vez. Uní cada palabra en inglés con su traducción. Cada partida trae palabras nuevas.</p>
+    <div class="stats"><span>Movimientos <b id="memMoves">0</b></span><span>Mejor <b id="memBest">–</b></span></div>
+    <div class="mem" id="memGrid"></div>
+    <p id="memEnd" aria-live="polite"></p>
+    <button class="btn" id="memAgain">Nuevas palabras</button>
+    <button class="ghost" id="memShare" hidden>Compartir resultado</button>
+  </div>
+</section>
+
+<section class="module" id="m-hang" hidden>
+  <div class="panel">
+    <h2>Adiviná la palabra</h2>
+    <p id="hgHint"></p>
+    <div class="lives" id="hgLives" aria-label="Vidas"></div>
+    <div class="word" id="hgWord" aria-live="polite"></div>
+    <div class="kb" id="hgKb"></div>
+    <p id="hgMsg" aria-live="polite"></p>
+    <button class="btn" id="hgAgain" hidden>Otra palabra</button>
+    <button class="ghost" id="hgShare" hidden>Compartir</button>
+  </div>
+</section>
+
+<section class="module" id="m-order" hidden>
+  <div class="panel">
+    <h2>Ordená la frase</h2>
+    <div class="qmeta" style="width:100%"><span id="orMeta"></span><span id="orScore"></span></div>
+    <p id="orEs" style="font-weight:800"></p>
+    <div class="slots" id="orSlots" aria-label="Tu frase"></div>
+    <div class="slots" id="orPool" style="border-style:solid;border-color:transparent" aria-label="Palabras"></div>
+    <p id="orFb" aria-live="polite" style="min-height:2.6em"></p>
+    <div class="row"><button class="ghost" id="orClear">Borrar</button><button class="btn" id="orCheck">Revisar</button><button class="btn" id="orNext" hidden>Siguiente</button></div>
+  </div>
+</section>
+
+<section class="module" id="m-tf" hidden><div class="panel" id="qTF"></div></section>
+
+<section class="module" id="m-grat" hidden>
+  <div class="panel">
+    <h2>Retos del día</h2>
+    <p id="grDate"></p>
+    <div class="rt" id="rtList"></div>
+    <p id="grMsg" aria-live="polite"></p>
+    <p class="note">Mañana hay retos nuevos. Hacé aunque sea uno para mantener tu racha.</p>
+  </div>
+</section>
+
+<section class="module" id="m-endless" hidden><div class="panel" id="qEndless"></div></section>
+
+<section class="module" id="m-search" hidden>
+  <div class="panel">
+    <h2>Sopa de letras</h2>
+    <p id="ssTheme"></p>
+    <div class="stats"><span>Tiempo <b id="ssTime">0:00</b></span><span>Encontradas <b id="ssCount">0/5</b></span></div>
+    <div class="sgrid" id="ssGrid"></div>
+    <div class="wl" id="ssList"></div>
+    <p id="ssMsg" aria-live="polite" style="min-height:1.4em"></p>
+    <button class="btn" id="ssAgain">Otra sopa</button>
+  </div>
+</section>
+
+<section class="module" id="m-zen" hidden>
+  <div class="stage bub" id="znStage">
+    <canvas id="znCanvas" aria-label="Jardín en calma: tocá para plantar flores"></canvas>
+    <div class="zhud"><span id="znCount">0 flores</span><span id="znPhrase"></span></div>
+  </div>
+  <div class="snd" id="znSnd" role="group" aria-label="Sonido ambiente"><button data-a="" aria-pressed="true">Silencio</button><button data-a="rain" aria-pressed="false">Lluvia</button><button data-a="sea" aria-pressed="false">Mar</button><button data-a="birds" aria-pressed="false">Pájaros</button></div>
+  <button class="ghost" id="znClear">Empezar un jardín nuevo</button>
+</section>
+<section class="module" id="m-bubbles" hidden>
+  <div class="stage bub" id="bbStage">
+    <canvas id="bbCanvas" aria-label="Juego de burbujas"></canvas>
+    <div class="overlay" id="bbMenu"><h2>Burbujas</h2><p>Tocá las burbujas para explotarlas. Las doradas dan más puntos y suman tiempo. Tenés 30 segundos.</p><button class="btn" id="bbPlay">¡Empezar!</button></div>
+    <div class="overlay" id="bbOver" hidden><h2>¡Tiempo!</h2><div class="big" id="bbScore">0</div><p id="bbMsg"></p><button class="btn" id="bbAgain">Otra vez</button><button class="ghost" id="bbShare">Compartir</button></div>
+  </div>
+</section>
+
+<section class="module" id="m-cine" hidden><div class="panel" id="qCine"></div></section>
+<section class="module" id="m-acert" hidden><div class="panel" id="qAcert"></div></section>
+<section class="module" id="m-duelo" hidden><div class="panel" id="qDuelo"></div></section>
+<section class="module" id="m-english" hidden><div class="panel" id="qEnglish"></div></section>
+<section class="module" id="m-interview" hidden><div class="panel" id="qInterview"></div></section>
+
+<section class="module" id="m-calm" hidden>
+  <div class="panel">
+    <h2>Respirá con Vivia</h2>
+    <p>Seguí el ritmo: inspirá 4, sostené 2, soltá 6. Ideal antes de una entrevista o una reunión.</p>
+    <div class="breath"><div class="ring" id="ring"></div><svg id="calmVivia" viewBox="-40 -80 80 110" aria-hidden="true"><g transform="translate(0,12)"><path d="M0 0C-11 -9 -12 -30 0 -40C12 -30 11 -9 0 0Z" transform="translate(-2,-6) rotate(-34) scale(1.05)" style="fill:var(--wa)"/><path d="M0 0C-11 -9 -12 -30 0 -40C12 -30 11 -9 0 0Z" transform="translate(2,-6) rotate(34) scale(1.05)" style="fill:var(--wb)"/><circle cx="0" cy="2" r="13" fill="#FBF7F9"/><circle cx="-4.5" cy="0" r="2" fill="#1F1A2E"/><circle cx="4.5" cy="0" r="2" fill="#1F1A2E"/><path d="M-3.4 4.4Q0 8 3.4 4.4" stroke="#1F1A2E" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="-8.4" cy="5" r="2.6" fill="#E04A98" opacity=".35"/><circle cx="8.4" cy="5" r="2.6" fill="#E04A98" opacity=".35"/></g></svg></div>
+    <div class="cue" id="cue" aria-live="polite">Listo cuando vos quieras</div>
+    <div class="row" id="calmLen" role="group" aria-label="Duración"><button class="chip" data-m="1" aria-pressed="true">1 min</button><button class="chip" data-m="2" aria-pressed="false">2 min</button><button class="chip" data-m="3" aria-pressed="false">3 min</button></div>
+    <button class="btn" id="calmGo">Empezar</button>
+    <p class="note" id="calmNote"></p>
+  </div>
+</section>
+
+<div id="toast" role="status" aria-live="polite" hidden></div>
+
+<div id="share" role="dialog" aria-modal="true" aria-label="Compartir" hidden>
+  <div class="panel">
+    <h2>Compartir</h2>
+    <p>Copiá el mensaje y mandalo por WhatsApp, Instagram o donde quieras.</p>
+    <textarea id="shareTxt" readonly aria-label="Mensaje para compartir"></textarea>
+    <p id="shareMsg" aria-live="polite" style="min-height:1.4em"></p>
+    <button class="btn" id="shareCopy">Copiar mensaje</button>
+    <button class="ghost" id="shareClose">Cerrar</button>
+  </div>
+</div>
+
+<footer>HECHO POR <b>BLUVIA</b></footer>
+
+<script>
+/* ===== base compartida ===== */
+var Store={
+  get:function(k,d){ try{ var v=localStorage.getItem(k); return v===null?d:v; }catch(e){ return d; } },
+  set:function(k,v){ try{ localStorage.setItem(k,String(v)); }catch(e){} }
+};
+var $=function(id){ return document.getElementById(id); };
+var ac=null, soundOn=true;
+function ensureAudio(){
+  if(!ac){ try{ ac=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ ac=null; } }
+  if(ac&&ac.state==='suspended'){ try{ac.resume();}catch(e){} }
+}
+function tone(f,d,type,v,mult){
+  if(!ac||!soundOn) return;
+  try{
+    var o=ac.createOscillator(), g=ac.createGain(), t=ac.currentTime;
+    o.type=type||'sine'; o.frequency.setValueAtTime(f,t);
+    if(mult) o.frequency.exponentialRampToValueAtTime(Math.max(30,f*mult),t+d);
+    g.gain.setValueAtTime(v||.08,t); g.gain.exponentialRampToValueAtTime(.0001,t+d);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t+d);
+  }catch(e){}
+}
+function sGood(){ tone(660,.12,'triangle',.1,1.3); setTimeout(function(){tone(990,.2,'triangle',.1,1.1);},90); }
+function sBad(){ tone(220,.25,'sawtooth',.06,.6); }
+function sFlip(){ tone(520,.06,'sine',.06,1.2); }
+function shuffle(a){ return a.map(function(x){return [Math.random(),x];}).sort(function(p,q){return p[0]-q[0];}).map(function(p){return p[1];}); }
+
+var SK=[{n:'Clásica',a:'#C42F7F',b:'#2A9AA3',need:0},{n:'Sol',a:'#FF8A3D',b:'#FFD36B',need:80},{n:'Aurora',a:'#7C5CFF',b:'#37E0B5',need:200}];
+var totalStars=parseInt(Store.get('lumi-stars','0'),10)||0;
+var skinI=parseInt(Store.get('lumi-skin','0'),10)||0;
+function applySkin(){ var r=document.documentElement; r.style.setProperty('--wa',SK[skinI].a); r.style.setProperty('--wb',SK[skinI].b); }
+function buildSkins(){
+  var box=$('skins'); box.innerHTML='';
+  if(skinI>=SK.length||SK[skinI].need>totalStars) skinI=0;
+  SK.forEach(function(k,i){
+    var b=document.createElement('button'), open=k.need<=totalStars;
+    b.className='skin'; b.disabled=!open; b.setAttribute('aria-pressed',String(i===skinI));
+    b.innerHTML='<i style="background:linear-gradient(135deg,'+k.a+' 50%,'+k.b+' 50%)"></i>'+k.n+(open?'':' · '+k.need+' ★');
+    b.addEventListener('click',function(){ skinI=i; Store.set('lumi-skin',i); applySkin(); buildSkins(); });
+    box.appendChild(b);
+  });
+  applySkin();
+}
+var LV=[{n:'Semilla',at:0},{n:'Brote',at:40},{n:'Hoja',at:120},{n:'Rama',at:250},{n:'Árbol',at:450},{n:'Bosque',at:750},{n:'Jardín',at:1200}];
+function lvIndex(v){ var i=0; for(var k=0;k<LV.length;k++) if(v>=LV[k].at) i=k; return i; }
+function dayKey(d){ var m=d.getMonth()+1, dd=d.getDate(); return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dd<10?'0':'')+dd; }
+var toastT=0;
+function toast(msg){ var t=$('toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(function(){ t.hidden=true; },3200); }
+function touchDay(){
+  var today=dayKey(new Date()), last=Store.get('lumi-day',''), st=parseInt(Store.get('lumi-daystreak','0'),10)||0;
+  if(last===today) return;
+  var y=new Date(); y.setDate(y.getDate()-1);
+  st=(last===dayKey(y))?st+1:1; Store.set('lumi-day',today); Store.set('lumi-daystreak',st);
+  if(st>1) toast('¡'+st+' días seguidos jugando!');
+}
+function renderLevel(){
+  var i=lvIndex(totalStars), cur=LV[i], nx=LV[i+1], st=parseInt(Store.get('lumi-daystreak','0'),10)||0;
+  if(Store.get('lumi-day','')!==dayKey(new Date())&&Store.get('lumi-day','')!==(function(){var y=new Date();y.setDate(y.getDate()-1);return dayKey(y);})()) st=0;
+  $('lvName').textContent='Nivel '+(i+1)+' · '+cur.n;
+  $('lvStreak').textContent=st>0?('Racha: '+st+(st===1?' día':' días')):'';
+  $('lvFill').style.width=(nx?Math.min(100,(totalStars-cur.at)/(nx.at-cur.at)*100):100)+'%';
+  $('lvNext').textContent=nx?('Te faltan '+(nx.at-totalStars)+' estrellas para ser '+nx.n):'¡Llegaste al nivel máximo!';
+}
+function addStars(n){
+  if(n<=0) return;
+  var before=lvIndex(totalStars); totalStars+=n; Store.set('lumi-stars',totalStars); $('starsN').textContent=totalStars;
+  touchDay(); buildSkins(); renderLevel();
+  var after=lvIndex(totalStars); if(after>before) toast('¡Subiste a nivel '+(after+1)+': '+LV[after].n+'!');
+}
+$('starsN').textContent=totalStars; buildSkins(); renderLevel();
+$('snd').addEventListener('click',function(){
+  soundOn=!soundOn; this.textContent='Sonido: '+(soundOn?'sí':'no'); this.setAttribute('aria-pressed',String(soundOn)); if(soundOn) ensureAudio();
+});
+
+/* ===== compartir ===== */
+var SHARE_URL='https://erikalelis.github.io/vivia-vuela/';
+function baseShare(){ return 'Vivia Vuela: dieciséis minijuegos para jugar, practicar inglés y pasar el rato. Ya junté '+totalStars+' estrellas. Jugá vos también: '+SHARE_URL+' · Hecho por Bluvia'; }
+function openShare(text){
+  $('shareTxt').value=text||baseShare(); $('shareMsg').textContent=''; $('share').hidden=false; $('shareCopy').focus();
+}
+$('shareBtn').addEventListener('click',function(){ openShare(); });
+$('shareClose').addEventListener('click',function(){ $('share').hidden=true; });
+$('share').addEventListener('click',function(e){ if(e.target===this) this.hidden=true; });
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') $('share').hidden=true; });
+$('shareCopy').addEventListener('click',function(){
+  var t=$('shareTxt'), ok=function(){ $('shareMsg').textContent='¡Copiado!'; }, no=function(){ t.focus(); t.select(); $('shareMsg').textContent='Seleccioná el texto y copialo.'; };
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t.value).then(ok,function(){ try{ t.select(); document.execCommand('copy')?ok():no(); }catch(e){ no(); } }); }
+    else{ t.select(); document.execCommand('copy')?ok():no(); }
+  }catch(e){ no(); }
+});
+function resultText(what){ return 'Hice '+what+' en Vivia Vuela. ¿Me ganás? '+SHARE_URL+' · Hecho por Bluvia'; }
+
+/* ===== navegación ===== */
+var MODS={fly:'m-fly',memory:'m-memory',english:'m-english',interview:'m-interview',calm:'m-calm',hang:'m-hang',order:'m-order',tf:'m-tf',grat:'m-grat',endless:'m-endless',search:'m-search',bubbles:'m-bubbles',zen:'m-zen',cine:'m-cine',acert:'m-acert',duelo:'m-duelo'};
+var current=null;
+function go(name){
+  ensureAudio();
+  if(current==='fly') Fly.leave();
+  if(current==='calm') Calm.stop();
+  if(current==='endless') Endless.stop();
+  if(current==='search') Search.stop();
+  if(current==='bubbles') Bub.leave();
+  if(current==='zen') Zen.leave();
+  current=name;
+  $('home').style.display=name?'none':'contents';
+  $('back').hidden=!name;
+  Object.keys(MODS).forEach(function(k){ $(MODS[k]).hidden=(k!==name); });
+  if(name==='fly') Fly.enter();
+  if(name==='memory') Mem.start();
+  if(name==='english') English.show();
+  if(name==='cine') Cine.show();
+  if(name==='acert') Acert.show();
+  if(name==='duelo') Duelo.show();
+  if(name==='interview') Interview.show();
+  if(name==='calm') Calm.reset();
+  if(name==='hang') Hang.start();
+  if(name==='order') Order.start();
+  if(name==='tf') TF.show();
+  if(name==='grat') Grat.show();
+  if(name==='endless') Endless.start();
+  if(name==='search') Search.start();
+  if(name==='bubbles') Bub.enter();
+  if(name==='zen') Zen.enter();
+  window.scrollTo(0,0);
+}
+$('back').addEventListener('click',function(){ go(null); });
+Array.prototype.forEach.call(document.querySelectorAll('.card'),function(c){ c.addEventListener('click',function(){ go(c.getAttribute('data-go')); }); });
+
+/* ===== motor de preguntas (Inglés e Entrevista) ===== */
+function confetti(){
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var cs=['#F36CAE','#2A9AA3','#FFD36B','#9C8CFF','#FF8A3D','#FBF7F9'];
+  for(var i=0;i<46;i++){ var e=document.createElement('i'); e.className='cf'; e.style.left=(Math.random()*100)+'vw'; e.style.background=cs[i%cs.length];
+    e.style.setProperty('--dx',((Math.random()-.5)*160)+'px'); e.style.setProperty('--rt',(Math.random()*720-360)+'deg'); e.style.animationDelay=(Math.random()*.5)+'s'; e.style.animationDuration=(1.8+Math.random()*1.2)+'s';
+    document.body.appendChild(e); (function(x){ setTimeout(function(){ if(x.parentNode) x.parentNode.removeChild(x); },3600); })(e); }
+}
+function QuizEngine(root,cfg){
+  var order=[], i=0, ok=0, answered=false, run=0, bonus=0;
+  function best(){ return parseInt(Store.get(cfg.key,'0'),10)||0; }
+  function home(){
+    if(cfg.customHome){ cfg.customHome(root,begin); return; }
+    root.innerHTML='';
+    var h=document.createElement('h2'); h.textContent=cfg.title; root.appendChild(h);
+    var p=document.createElement('p'); p.textContent=cfg.desc; root.appendChild(p);
+    var m=document.createElement('p'); var sn=Math.min(cfg.bank.length,seenList().length); m.textContent='Mejor resultado: '+best()+' de '+cfg.n+' · Preguntas vistas: '+sn+' de '+cfg.bank.length; root.appendChild(m);
+    var b=document.createElement('button'); b.className='btn'; b.textContent='Empezar'; b.addEventListener('click',begin); root.appendChild(b);
+  }
+  function seenList(){ try{ var a=JSON.parse(Store.get(cfg.key+'-seen','[]')); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+  function begin(){
+    if(cfg.picker){ order=cfg.picker(); i=0; ok=0; run=0; bonus=0; ask(); return; }
+    var seen=seenList(), pool=cfg.bank.filter(function(q){ return seen.indexOf(q.q)<0; });
+    if(pool.length<cfg.n){ seen=[]; pool=cfg.bank.slice(); }
+    order=shuffle(pool).slice(0,cfg.n); i=0; ok=0; run=0; bonus=0;
+    Store.set(cfg.key+'-seen',JSON.stringify(seen.concat(order.map(function(q){return q.q;}))));
+    ask();
+  }
+  function ask(){
+    var q=order[i]; answered=false; root.innerHTML='';
+    var meta=document.createElement('div'); meta.className='qmeta'; meta.innerHTML='<span>Pregunta '+(i+1)+' de '+order.length+'</span><span>Aciertos: '+ok+'</span>'; root.appendChild(meta);
+    var bar=document.createElement('div'); bar.className='bar'; var fill=document.createElement('i'); bar.appendChild(fill); root.appendChild(bar);
+    requestAnimationFrame(function(){ fill.style.width=(i/order.length*100)+'%'; });
+    var h=document.createElement('p'); h.className='qq'; h.textContent=q.q; root.appendChild(h);
+    var box=document.createElement('div'); box.className='opts'; root.appendChild(box);
+    var fb=document.createElement('p'); fb.setAttribute('aria-live','polite'); fb.style.minHeight='2.6em'; root.appendChild(fb);
+    var next=document.createElement('button'); next.className='btn'; next.textContent=(i+1<order.length?'Siguiente':'Ver resultado'); next.hidden=true; next.addEventListener('click',function(){ i++; if(i<order.length) ask(); else finish(); }); root.appendChild(next);
+    var ci=q.a||0, opts=q.o.map(function(t,k){ return {t:t,ok:k===ci}; }); if(!cfg.fixed&&!q.fixed) opts=shuffle(opts);
+    opts.forEach(function(o){
+      var b=document.createElement('button'); b.className='opt'; b.textContent=o.t;
+      b.addEventListener('click',function(){
+        if(answered) return; answered=true;
+        Array.prototype.forEach.call(box.children,function(c,k){ c.disabled=true; if(opts[k].ok) c.classList.add('good'); });
+        if(o.ok){ ok++; run++; var bn=run>=3?1:0; bonus+=bn; sGood(); fb.textContent='¡Correcto! '+(bn?'Racha de '+run+' (+1 estrella). ':'')+(q.t||''); }
+        else{ run=0; b.classList.add('bad'); sBad(); fb.textContent='Casi. '+(q.t||''); }
+        next.hidden=false; next.focus();
+      });
+      box.appendChild(b);
+    });
+  }
+  function finish(){
+    var stars=ok*cfg.per+bonus; addStars(stars);
+    var nb=ok>best(); if(nb) Store.set(cfg.key,ok);
+    root.innerHTML='';
+    var h=document.createElement('h2'); h.textContent='¡Terminaste!'; root.appendChild(h);
+    var big=document.createElement('div'); big.className='big'; big.textContent=ok+' / '+order.length; root.appendChild(big);
+    var p=document.createElement('p'); p.textContent=(ok===order.length?'¡Perfecto! ':ok>=order.length*.6?'¡Muy bien! ':'Buen comienzo. ')+cfg.after; root.appendChild(p);
+    var s=document.createElement('p'); s.textContent=(nb?'¡Nuevo récord! ':'')+'+'+stars+' estrellas'+(bonus?' (incluye '+bonus+' de bonus por racha)':''); root.appendChild(s);
+    var b=document.createElement('button'); b.className='btn'; b.textContent='Otra ronda'; b.addEventListener('click',begin); root.appendChild(b);
+    var g=document.createElement('button'); g.className='ghost'; g.textContent='Volver al inicio'; g.addEventListener('click',function(){ go(null); }); root.appendChild(g);
+    var sh=document.createElement('button'); sh.className='ghost'; sh.textContent='Compartir resultado'; sh.addEventListener('click',function(){ openShare(cfg.shareText?cfg.shareText(ok,order.length):resultText(ok+' de '+order.length+' en '+cfg.title)); }); root.appendChild(sh);
+    if(ok>=order.length*.6){ sGood(); confetti(); }
+  }
+  return {show:home,bank:cfg.bank};
+}
+
+var English=QuizEngine($('qEnglish'),{
+  key:'lumi-best-en',title:'Inglés Express',n:8,per:5,after:'Seguí practicando: cada ronda suma.',
+  desc:'8 preguntas por ronda, siempre distintas: vocabulario, frases y gramática. Si acertás 3 seguidas, ganás estrellas extra.',
+  bank:[
+    {q:'“Breakfast” significa…',o:['Desayuno', 'Almuerzo', 'Cena'],t:'Break + fast: “romper el ayuno”.'},
+    {q:'“Cheap” significa…',o:['Barato', 'Caro', 'Chico'],t:'No confundir con “cheep” (piar).'},
+    {q:'“Library” significa…',o:['Biblioteca', 'Librería', 'Libertad'],t:'Falso amigo clásico: librería es “bookstore”.'},
+    {q:'“Actually” significa…',o:['En realidad', 'Actualmente', 'Justamente'],t:'Actualmente es “currently”.'},
+    {q:'“Embarrassed” significa…',o:['Avergonzado', 'Embarazada', 'Enojado'],t:'Embarazada es “pregnant”.'},
+    {q:'“Soap” significa…',o:['Jabón', 'Sopa', 'Sopa de letras'],t:'Sopa es “soup”.'},
+    {q:'“Pretend” significa…',o:['Fingir', 'Pretender', 'Preguntar'],t:'Pretender es “to intend”.'},
+    {q:'“Sensible” significa…',o:['Sensato', 'Sensible', 'Sentimental'],t:'Sensible es “sensitive”.'},
+    {q:'“Fabric” significa…',o:['Tela', 'Fábrica', 'Fabuloso'],t:'Fábrica es “factory”.'},
+    {q:'“Realize” significa…',o:['Darse cuenta', 'Realizar', 'Real'],t:'Realizar es “to carry out”.'},
+    {q:'¿Cuál es correcta?',o:['She doesn’t like coffee', 'She don’t like coffee', 'She not like coffee'],t:'Con he/she/it se usa “doesn’t”.'},
+    {q:'¿Cuál es correcta?',o:['I have been here since Monday', 'I am here since Monday', 'I was here since Monday'],t:'“Since” va con presente perfecto.'},
+    {q:'¿Cómo se dice “Me quedé sin batería”?',o:['My phone died', 'I am without battery', 'My battery is finishing'],t:'“My phone died” es lo más natural.'},
+    {q:'“Looking forward to” significa…',o:['Tener ganas de, esperar con ilusión', 'Mirar hacia adelante', 'Buscar adelante'],t:'“I’m looking forward to the weekend”.'},
+    {q:'“Break the ice” significa…',o:['Romper el hielo', 'Romper un vaso', 'Enfriar algo'],t:'Es empezar una conversación incómoda.'},
+    {q:'“Piece of cake” significa…',o:['Muy fácil', 'Un trozo de torta', 'Un regalo'],t:'Se usa para algo súper fácil.'},
+    {q:'“Once in a blue moon” significa…',o:['Muy de vez en cuando', 'Todas las noches', 'Con luna llena'],t:'Equivale a “de Pascuas a Ramos”.'},
+    {q:'“Under the weather” significa…',o:['Algo enfermo o decaído', 'Bajo la lluvia', 'Con mucho frío'],t:'“I’m a bit under the weather today”.'},
+    {q:'¿Cómo se dice “Ponerse al día”?',o:['Catch up', 'Catch down', 'Put up'],t:'“Let’s catch up soon!”.'},
+    {q:'“Hang out” significa…',o:['Pasar el rato', 'Colgar la ropa', 'Salir corriendo'],t:'“Do you want to hang out?”.'},
+    {q:'¿Cómo se dice “Mucho gusto”?',o:['Nice to meet you', 'Much pleasure', 'Many taste'],t:'La forma más usada para presentarse.'},
+    {q:'“Cost an arm and a leg” significa…',o:['Costar un ojo de la cara', 'Perder un brazo', 'Ser muy pesado'],t:'Se usa para algo carísimo.'},
+    {q:'¿Cuál es el plural de “child”?',o:['Children', 'Childs', 'Childes'],t:'Plural irregular.'},
+    {q:'“Borrow” significa…',o:['Pedir prestado', 'Prestar', 'Pedir perdón'],t:'Prestar es “lend”.'},
+    {q:'“Deadline” significa…',o:['Fecha límite','Línea de tiempo','Muerte súbita'],t:'Se usa mucho: “the deadline is Friday”.'},
+    {q:'“Meeting” significa…',o:['Reunión','Encuentro casual','Cita médica'],t:'“Let’s schedule a meeting”.'},
+    {q:'“Skills” significa…',o:['Habilidades','Esquíes','Salarios'],t:'Muy común en un CV.'},
+    {q:'“Salary” significa…',o:['Sueldo','Ensalada','Ventas'],t:'Salary es el sueldo; sale es “venta”.'},
+    {q:'“Goal” significa…',o:['Objetivo','Gol','Oro'],t:'En el trabajo, casi siempre es un objetivo.'},
+    {q:'“Experience” significa…',o:['Experiencia','Experimento','Expectativa'],t:'Falso amigo: no es “experimento”.'},
+    {q:'“Invoice” significa…',o:['Factura','Invitación','Inversión'],t:'“Please send the invoice”.'},
+    {q:'“Budget” significa…',o:['Presupuesto','Boleto','Bufete'],t:'“We are within budget”.'},
+    {q:'“Schedule” significa…',o:['Agenda o cronograma','Escuela','Esquema de pago'],t:'“Check the schedule”.'},
+    {q:'“Manager” significa…',o:['Gerente o jefe','Mensajero','Entrenador de fútbol'],t:'“I will ask my manager”.'},
+    {q:'¿Cómo se dice “Estoy de acuerdo”?',o:['I agree','I am agreed','I accord'],t:'Se dice “I agree”, sin “am”.'},
+    {q:'¿Cómo pedís que repitan algo?',o:['Could you repeat that, please?','Repeat you now','What is the repeating?'],t:'“Could you…” suena amable.'},
+    {q:'¿Cómo se dice “Me llamo Ana”?',o:['My name is Ana','I call Ana','Me called Ana'],t:'También: “I’m Ana”.'},
+    {q:'“I’m looking forward to it” significa…',o:['Tengo muchas ganas de que llegue','Estoy mirando hacia adelante','Lo estoy buscando'],t:'Una frase clásica para cerrar un correo.'},
+    {q:'¿Cómo pedís “Un momento, por favor”?',o:['Just a moment, please','One moment for favor','A moment, please you'],t:'Simple y educado.'},
+    {q:'“Follow up” en el trabajo es…',o:['Hacer seguimiento','Seguir a alguien','Subir de nivel'],t:'“I’ll follow up by email”.'},
+    {q:'“Thank you for your time” se usa para…',o:['Agradecer al final de una entrevista','Pedir más tiempo','Cobrar por hora'],t:'Ideal para despedirte.'},
+    {q:'¿Cuál es la forma más amable de pedir ayuda?',o:['Could you help me, please?','Help me now','You help me'],t:'“Could you…?” abre puertas.'},
+    {q:'Completá: She ___ coffee every morning.',o:['drinks','drink','drinking'],t:'Con she, he o it, el verbo lleva -s.'},
+    {q:'Completá: I ___ to the gym yesterday.',o:['went','go','goed'],t:'Go es irregular: go, went, gone.'},
+    {q:'“Library” significa…',o:['Biblioteca','Librería','Libertad'],t:'Falso amigo: librería es “bookstore”.'},
+    {q:'“Actually” significa…',o:['En realidad','Actualmente','Ahora mismo'],t:'Actualmente es “currently”.'},
+    {q:'“Embarrassed” significa…',o:['Avergonzado','Embarazada','Enojado'],t:'Embarazada es “pregnant”.'},
+    {q:'¿Cómo pedís la cuenta en un restaurante?',o:['Could we have the check, please?','Give me the money','Where is my account?'],t:'En el Reino Unido se dice “the bill”.'},
+    {q:'¿Cómo preguntás la hora?',o:['What time is it?','How hour is it?','Which time have you?'],t:'Simple y directo.'},
+    {q:'Completá: There ___ two apples on the table.',o:['are','is','be'],t:'Dos manzanas: plural, entonces “are”.'},
+    {q:'“Cheap” significa…',o:['Barato','Caro','Chico'],t:'Chico es “small”.'},
+    {q:'Para pedir paso entre la gente se dice…',o:['Excuse me','Sorry me','Forgive me please'],t:'Excuse me sirve para pedir paso o atención.'},
+    {q:'En “coffee break”, “break” es…',o:['Pausa','Rotura','Freno'],t:'Una pausa para el café.'},
+    {q:'Completá: I have lived here ___ 2015.',o:['since','for','from'],t:'Since + fecha de inicio; for + duración.'},
+    {q:'¿Cómo se dice “Estoy cansado”?',o:['I’m tired','I have tired','I’m tiring'],t:'Tired es cansado; tiring es “agotador”.'},
+    {q:'“Rent” significa…',o:['Alquilar o alquiler','Renta financiera','Rendir'],t:'“I pay the rent on the first”.'},
+    {q:'¿Cuál es el plural de “child”?',o:['Children','Childs','Childrens'],t:'Plural irregular.'},
+    {q:'“Hardly” significa…',o:['Apenas','Duramente','Mucho'],t:'“I can hardly hear you”: apenas te oigo.'},
+    {q:'¿Cómo se dice “Buen viaje”?',o:['Have a nice trip','Good travel','Nice voyage to you'],t:'Una frase de despedida clásica.'},
+    {q:'Completá: Do you ___ a pen?',o:['have','has','having'],t:'Después de “do”, el verbo va en forma base.'},
+    {q:'“Sensible” significa…',o:['Sensato','Sensible','Sensual'],t:'Sensible (emocional) es “sensitive”.'},
+    {q:'¿Cómo preguntás el precio de algo?',o:['How much is it?','How many costs?','What price has?'],t:'Con “how much” para cosas que no se cuentan.'},
+    {q:'“Subject” en un correo es…',o:['Asunto','Sujeto','Subtítulo'],t:'“Subject line”: línea de asunto.'},
+    {q:'¿Cómo se dice “Hasta mañana”?',o:['See you tomorrow','Until tomorrow you','Until morning'],t:'Literalmente: “te veo mañana”.'}
+  ]
+});
+
+var Interview=QuizEngine($('qInterview'),{
+  key:'lumi-best-iv',title:'Entrevista relámpago',n:6,per:6,after:'Cada práctica te da más seguridad.',
+  desc:'6 situaciones reales de entrevista. Elegí la respuesta que mejor te representa.',
+  bank:[
+    {q:'¿Qué hacés si no entendés bien una pregunta en la entrevista?',o:['Pedir amablemente que la repitan o la aclaren', 'Responder cualquier cosa', 'Quedarme callado'],t:'Preguntar muestra interés y evita errores.'},
+    {q:'Te preguntan por tu mayor debilidad. ¿Qué conviene?',o:['Contar una real y cómo la trabajo', 'Decir que no tengo ninguna', 'Decir que soy perfeccionista y nada más'],t:'Honestidad con plan de mejora.'},
+    {q:'¿Qué conviene preguntar al final de la entrevista?',o:['Cómo es el equipo y qué se espera en los primeros meses', 'Cuántas vacaciones tengo el primer día', 'Nada, para no molestar'],t:'Muestra interés genuino.'},
+    {q:'¿Cómo responder “¿Por qué dejaste tu trabajo anterior?”',o:['Hablar de lo que busco, sin criticar a nadie', 'Contar todo lo malo de mi jefe', 'Decir que no me acuerdo'],t:'Positivo y hacia adelante.'},
+    {q:'¿Qué ropa conviene para una entrevista virtual?',o:['Prolija y cómoda, como para ir en persona', 'Pijama, nadie me ve entera', 'Cualquiera, con la cámara apagada'],t:'La imagen suma desde el primer segundo.'},
+    {q:'Llegás con 20 minutos de anticipación. ¿Qué hacés?',o:['Espero cerca y entro unos 5 minutos antes', 'Entro de golpe y pregunto por qué no me atienden', 'Me voy y vuelvo tarde'],t:'Puntual, sin apurar a nadie.'},
+    {q:'¿Cómo mostrar un logro sin sonar presumida?',o:['Con un dato concreto y qué aprendí', 'Diciendo que soy la mejor', 'Evitando hablar de logros'],t:'Los números convencen.'},
+    {q:'Te preguntan por salario. ¿Qué conviene?',o:['Dar un rango razonable según el mercado', 'Decir una cifra altísima sin pensar', 'Decir que me da igual'],t:'Informarte antes ayuda.'},
+    {q:'¿Qué hacés si te quedás en blanco?',o:['Respiro, tomo agua y pido un momento para pensar', 'Cambio de tema', 'Me disculpo muchas veces'],t:'Una pausa se nota menos de lo que creés.'},
+    {q:'¿Cómo cerrar la entrevista?',o:['Agradecer y reafirmar mi interés', 'Irme sin decir nada', 'Pedir la respuesta ya mismo'],t:'El cierre también cuenta.'},
+    {q:'Al día siguiente de la entrevista, lo mejor es…',o:['Enviar un breve mensaje de agradecimiento', 'Llamar cada hora', 'No escribir nunca'],t:'Cortés y profesional.'},
+    {q:'¿Qué es el método STAR?',o:['Situación, Tarea, Acción, Resultado', 'Salir, Trabajar, Aprender, Repetir', 'Saludar, Tomar nota, Aceptar, Responder'],t:'Sirve para contar ejemplos con orden.'},
+    {q:'Te preguntan por un error que cometiste. ¿Qué hacés?',o:['Cuento qué pasó, cómo lo resolví y qué aprendí', 'Digo que nunca me equivoco', 'Culpo a otra persona'],t:'Mostrar aprendizaje es positivo.'},
+    {q:'¿Dónde te ves en cinco años? Mejor respuesta:',o:['Creciendo en mi área y aportando más valor', 'No tengo idea ni me importa', 'En tu puesto, jefe'],t:'Ambición con los pies en la tierra.'},
+    {q:'¿Cómo conviene responder “Contame sobre vos”?',o:['Resumir mi experiencia y lo que busco, en un minuto','Contar toda mi vida desde chica','Decir que no sé qué decir'],t:'Corto, concreto y enfocado en el puesto.'},
+    {q:'Te hacen una pregunta que no esperabas. ¿Qué hacés?',o:['Respiro, pido un momento y respondo con calma','Me bloqueo y me quedo en silencio','Invento cualquier cosa'],t:'Pedir unos segundos es totalmente profesional.'},
+    {q:'¿Cómo conviene hablar de un error del pasado?',o:['Contar qué aprendí y cómo lo resolví','Culpar al equipo','Decir que nunca me equivoco'],t:'Mostrar aprendizaje suma puntos.'},
+    {q:'¿Qué conviene hacer antes de una entrevista?',o:['Leer la vacante y preparar ejemplos','Llegar sin saber nada','Memorizar un texto palabra por palabra'],t:'Los ejemplos reales se recuerdan mejor que un texto.'},
+    {q:'Te preguntan “¿Tenés preguntas?”. Lo mejor es…',o:['Preguntar por el equipo o los desafíos del puesto','Decir que no, ninguna','Preguntar solo por vacaciones'],t:'Hacer preguntas muestra interés real.'},
+    {q:'¿Qué contás cuando te preguntan por tus puntos débiles?',o:['Una debilidad real y cómo la trabajás','Que no tengo ninguna','Que no me gusta el trabajo en equipo'],t:'Honestidad con un plan de mejora.'},
+    {q:'“¿Por qué querés este puesto?” Conviene…',o:['Conectar lo que sé hacer con lo que necesita la empresa','Decir que necesito trabajar','Decir que queda cerca'],t:'Mostrá qué aportás, no solo qué necesitás.'},
+    {q:'Si no entendés una pregunta, lo mejor es…',o:['Pedir que la repitan o la expliquen de otra forma','Responder cualquier cosa','Cambiar de tema'],t:'Aclarar antes de responder siempre ayuda.'},
+    {q:'Los primeros minutos de una entrevista, ¿qué importa?',o:['Saludar con una sonrisa y mostrar interés','Mirar el celular','Hablar sin parar'],t:'La primera impresión se arma rápido.'},
+    {q:'¿Cómo cerrás una entrevista?',o:['Agradezco, repito mi interés y pregunto los próximos pasos','Me voy sin decir nada','Pido el sueldo enseguida'],t:'Un buen cierre se recuerda.'},
+    {q:'Al terminar una reunión, ¿qué es lo más útil?',o:['Un resumen con tareas y fechas','Esperar que alguien se acuerde','Olvidar lo hablado'],t:'Tareas con responsable y fecha: nada se pierde.'},
+    {q:'Una respuesta larga y enredada… ¿qué ayuda?',o:['Dar la idea principal primero y después un ejemplo','Hablar más rápido','Repetir lo mismo'],t:'Primero la idea, después el ejemplo.'},
+    {q:'¿Cómo conviene vestirte para una entrevista?',o:['Un poco más formal que el código de la empresa','Como para ir a la playa','Da lo mismo'],t:'Prolijo y cómodo, para sentirte segura.'},
+    {q:'Llegás tarde por un imprevisto. ¿Qué hacés?',o:['Aviso apenas puedo y me disculpo brevemente','No aviso a nadie','Invento una excusa larga'],t:'Avisar a tiempo muestra responsabilidad.'},
+    {q:'En una entrevista por videollamada, lo primero es…',o:['Probar cámara, micrófono e internet antes','Entrar justo a la hora sin probar nada','Usar un fondo desordenado'],t:'Un problema técnico se evita con diez minutos de prueba.'},
+    {q:'Te preguntan por tu mayor logro. ¿Qué conviene?',o:['Contar la situación, qué hice y el resultado','Decir que no tengo logros','Hablar de logros de otros'],t:'Situación, acción y resultado.'},
+    {q:'¿Cómo mostrar interés en la empresa?',o:['Investigar qué hace y mencionar algo concreto','Preguntar a qué se dedica','Decir que cualquier empresa me sirve'],t:'Un dato concreto vale más que un elogio general.'},
+    {q:'Mientras el entrevistador habla, lo mejor es…',o:['Escuchar con atención y asentir','Interrumpir para responder rápido','Mirar el reloj'],t:'Escuchar también es parte de la entrevista.'},
+    {q:'¿Cuál es una buena pregunta para hacer?',o:['¿Cómo es un día típico en este puesto?','¿Cuándo me puedo ir de vacaciones?','¿Me pagan más si no vengo?'],t:'Preguntas sobre el trabajo muestran compromiso.'},
+    {q:'Te piden hablar de un conflicto con un compañero…',o:['Cuento cómo lo resolví con respeto','Hablo mal de esa persona','Digo que nunca tuve conflictos'],t:'Mostrá cómo manejás las diferencias.'}
+  ]
+});
+
+/* ===== memoria bilingüe ===== */
+var Mem=(function(){
+  var ALL=[['Meeting','Reunión'],['Sunrise','Amanecer'],['Rainbow','Arcoíris'],['Cloud','Nube'],['Island','Isla'],['Forest','Bosque'],['River','Río'],['Cheese','Queso'],['Pillow','Almohada'],['Umbrella','Paraguas'],['Mirror','Espejo'],['Candle','Vela'],['Blanket','Manta'],['Keyboard','Teclado'],['Notebook','Cuaderno'],['Shadow','Sombra'],['Rooster','Gallo'],['Sheep','Oveja'],['Pepper','Pimienta'],['Interview','Entrevista'],['Team','Equipo'],['Goal','Objetivo'],['Skills','Habilidades'],['Deadline','Fecha límite'],
+    ['Invoice','Factura'],['Budget','Presupuesto'],['Window','Ventana'],['Garden','Jardín'],['Journey','Viaje'],['Coffee','Café'],['Bridge','Puente'],['Mountain','Montaña'],
+    ['Neighbor','Vecino'],['Breakfast','Desayuno'],['Ticket','Boleto'],['Weather','Clima'],['Dream','Sueño'],['Moon','Luna'],['Lighthouse','Faro'],['Butterfly','Mariposa']];
+  var PAIRS=ALL.slice(0,6), seen=[];
+  var grid=$('memGrid'), moves=0, open=[], found=0, lock=false;
+  var back='<svg viewBox="0 0 24 24" fill="#FBF7F9" aria-hidden="true"><path d="M12 3C7 8 7 14 12 19C17 14 17 8 12 3Z"/></svg>';
+  function best(){ var b=parseInt(Store.get('lumi-best-mem','0'),10)||0; return b||null; }
+  function start(){
+    var fresh=ALL.filter(function(p){ return seen.indexOf(p[0])<0; });
+    if(fresh.length<6){ seen=[]; fresh=ALL.slice(); }
+    PAIRS=shuffle(fresh).slice(0,6); PAIRS.forEach(function(p){ seen.push(p[0]); });
+    moves=0; open=[]; found=0; lock=false; $('memShare').hidden=true;
+    $('memMoves').textContent='0'; $('memBest').textContent=best()||'–'; $('memEnd').textContent=''; $('memAgain').hidden=true;
+    var cards=[]; PAIRS.forEach(function(p,k){ cards.push({id:k,t:p[0]}); cards.push({id:k,t:p[1]}); });
+    grid.innerHTML='';
+    shuffle(cards).forEach(function(c){
+      var b=document.createElement('button'); b.className='mc'; b.setAttribute('aria-label','Carta boca abajo');
+      b.innerHTML='<span class="in"><span class="f">'+back+'</span><span class="b"></span></span>';
+      b.lastChild.lastChild.textContent=c.t;
+      b.addEventListener('click',function(){ flip(b,c); });
+      grid.appendChild(b);
+    });
+  }
+  function flip(b,c){
+    if(lock||b.classList.contains('on')) return;
+    b.classList.add('on'); b.setAttribute('aria-label',c.t); sFlip(); open.push({b:b,c:c});
+    if(open.length<2) return;
+    moves++; $('memMoves').textContent=moves; lock=true;
+    var x=open[0], y=open[1];
+    if(x.c.id===y.c.id){
+      setTimeout(function(){ x.b.classList.add('ok'); y.b.classList.add('ok'); x.b.disabled=true; y.b.disabled=true; open=[]; lock=false; found++; sGood(); if(found===PAIRS.length) done(); },420);
+    }else{
+      setTimeout(function(){ x.b.classList.remove('on'); y.b.classList.remove('on'); x.b.setAttribute('aria-label','Carta boca abajo'); y.b.setAttribute('aria-label','Carta boca abajo'); open=[]; lock=false; },900);
+    }
+  }
+  function done(){
+    var stars=Math.max(5,30-2*(moves-PAIRS.length)); addStars(stars);
+    var b=best(), nb=!b||moves<b; if(nb) Store.set('lumi-best-mem',moves);
+    $('memBest').textContent=best();
+    $('memEnd').textContent=(nb?'¡Nuevo récord! ':'¡Completado! ')+moves+' movimientos · +'+stars+' estrellas';
+    $('memAgain').hidden=false; $('memShare').hidden=false; $('memAgain').focus();
+  }
+  $('memAgain').addEventListener('click',start);
+  $('memShare').addEventListener('click',function(){ openShare(resultText('Memoria bilingüe en '+moves+' movimientos')); });
+  return {start:start};
+})();
+
+/* ===== respirá con Vivia ===== */
+var Calm=(function(){
+  var raf=0, t0=0, total=60, running=false, minutes=1, lastPhase='';
+  var ring=$('ring'), lum=$('calmVivia'), cue=$('cue'), go1=$('calmGo'), note=$('calmNote');
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  Array.prototype.forEach.call($('calmLen').children,function(b){
+    b.addEventListener('click',function(){
+      if(running) return; minutes=parseInt(b.getAttribute('data-m'),10);
+      Array.prototype.forEach.call($('calmLen').children,function(c){ c.setAttribute('aria-pressed',String(c===b)); });
+    });
+  });
+  function setScale(s){ ring.style.transform='scale('+s+')'; lum.style.transform='scale('+(0.8+(s-.7)*.55)+')'; }
+  function reset(){ stop(); cue.textContent='Listo cuando vos quieras'; go1.textContent='Empezar'; setScale(.7); note.textContent='Respiraciones completadas: '+(parseInt(Store.get('lumi-breaths','0'),10)||0); }
+  function stop(){ running=false; cancelAnimationFrame(raf); }
+  function tick(ts){
+    if(!running) return;
+    var e=(ts-t0)/1000;
+    if(e>=total){ finish(); return; }
+    var c=e%12, s, ph;
+    if(c<4){ s=.7+.45*(c/4); ph='Inspirá…'; }
+    else if(c<6){ s=1.15; ph='Sostené…'; }
+    else{ s=1.15-.45*((c-6)/6); ph='Soltá despacio…'; }
+    if(reduce) s=ph==='Soltá despacio…'?.7:1.15;
+    setScale(s);
+    if(ph!==lastPhase){ lastPhase=ph; cue.textContent=ph; tone(ph==='Inspirá…'?330:ph==='Sostené…'?392:262,.5,'sine',.05); }
+    raf=requestAnimationFrame(tick);
+  }
+  function finish(){
+    running=false; var n=Math.round(total/12); var prev=parseInt(Store.get('lumi-breaths','0'),10)||0; Store.set('lumi-breaths',prev+n);
+    var stars=5*minutes; addStars(stars); setScale(.7); sGood();
+    cue.textContent='¡Listo! Entrás con calma'; go1.textContent='Otra vez'; note.textContent='+'+stars+' estrellas · respiraciones totales: '+(prev+n);
+  }
+  go1.addEventListener('click',function(){
+    ensureAudio();
+    if(running){ reset(); return; }
+    running=true; total=minutes*60; lastPhase=''; t0=performance.now(); go1.textContent='Parar'; note.textContent='';
+    raf=requestAnimationFrame(tick);
+  });
+  return {reset:reset,stop:stop};
+})();
+
+
+/* ===== verdadero o falso ===== */
+var TF=QuizEngine($('qTF'),{
+  key:'lumi-best-tf',title:'Verdadero o falso',n:8,per:4,fixed:true,after:'Seguí curioseando.',
+  desc:'8 afirmaciones curiosas. ¿Son verdaderas o falsas?',
+  bank:[
+    {q:'Las abejas pueden reconocer rostros humanos.',o:['Verdadero','Falso'],a:0,t:'Se comprobó en experimentos con fotos.'},
+    {q:'El Sol es un planeta.',o:['Verdadero','Falso'],a:1,t:'Es una estrella.'},
+    {q:'Los koalas duermen hasta 20 horas por día.',o:['Verdadero','Falso'],a:0,t:'Comen hojas de eucalipto, que dan poca energía.'},
+    {q:'La Gran Muralla China se ve a simple vista desde la Luna.',o:['Verdadero','Falso'],a:1,t:'Es un mito: no se distingue.'},
+    {q:'Los delfines duermen con la mitad del cerebro despierto.',o:['Verdadero','Falso'],a:0,t:'Así siguen respirando.'},
+    {q:'Un rayo nunca cae dos veces en el mismo lugar.',o:['Verdadero','Falso'],a:1,t:'Cae muchas veces, por ejemplo en rascacielos.'},
+    {q:'La miel puede conservarse miles de años sin echarse a perder.',o:['Verdadero','Falso'],a:0,t:'Se encontró miel comestible en tumbas egipcias.'},
+    {q:'El tomate es técnicamente una fruta.',o:['Verdadero','Falso'],a:0,t:'Botánicamente es un fruto con semillas.'},
+    {q:'Los humanos usan solo el 10 % del cerebro.',o:['Verdadero','Falso'],a:1,t:'Usamos todo el cerebro, en distintos momentos.'},
+    {q:'Las jirafas tienen más vértebras en el cuello que los humanos.',o:['Verdadero','Falso'],a:1,t:'Tienen siete, igual que nosotros, pero enormes.'},
+    {q:'El agua caliente se congela más rápido que la fría en algunas condiciones.',o:['Verdadero','Falso'],a:0,t:'Es el efecto Mpemba, aún debatido.'},
+    {q:'Los pingüinos viven en el Polo Norte.',o:['Verdadero','Falso'],a:1,t:'Viven en el hemisferio sur.'},
+    {q:'Una nube puede pesar más de un millón de kilos.',o:['Verdadero','Falso'],a:0,t:'Son millones de gotitas flotando.'},
+    {q:'El corazón humano late unas 100.000 veces por día.',o:['Verdadero','Falso'],a:0,t:'Más o menos, ¡no descansa!'},
+    {q:'Los camaleones cambian de color solo para esconderse.',o:['Verdadero','Falso'],a:1,t:'También lo hacen por temperatura y emociones.'},
+    {q:'Venus gira en sentido contrario a la mayoría de los planetas.',o:['Verdadero','Falso'],a:0,t:'Tiene rotación retrógrada.'},
+    {q:'Los gatos pueden saborear lo dulce.',o:['Verdadero','Falso'],a:1,t:'No tienen receptores para el sabor dulce.'},
+    {q:'El Amazonas atraviesa Brasil.',o:['Verdadero','Falso'],a:0,t:'Es el río más caudaloso del mundo.'},
+    {q:'Las mariposas saborean con las patas.',o:['Verdadero','Falso'],a:0,t:'Tienen receptores del gusto en las patas.'},
+    {q:'Los cocodrilos pueden sacar la lengua.',o:['Verdadero','Falso'],a:1,t:'No pueden: la tienen pegada al paladar.'},
+    {q:'Los pulpos tienen tres corazones.',o:['Verdadero','Falso'],a:0,t:'Dos bombean sangre a las branquias y uno al resto del cuerpo.'},
+    {q:'El Sol es un planeta.',o:['Verdadero','Falso'],a:1,t:'Es una estrella, y la más cercana a la Tierra.'},
+    {q:'La miel puede conservarse miles de años sin echarse a perder.',o:['Verdadero','Falso'],a:0,t:'Se encontró miel comestible en tumbas muy antiguas.'},
+    {q:'Los humanos usamos solo el 10 % del cerebro.',o:['Verdadero','Falso'],a:1,t:'Es un mito: usamos todo el cerebro, en distintos momentos.'},
+    {q:'Un día en Venus dura más que un año en Venus.',o:['Verdadero','Falso'],a:0,t:'Rota tan lento que un día supera a su año.'},
+    {q:'Los murciélagos son ciegos.',o:['Verdadero','Falso'],a:1,t:'Ven bastante bien; además usan eco para orientarse.'},
+    {q:'Los tomates son botánicamente una fruta.',o:['Verdadero','Falso'],a:0,t:'Tienen semillas y salen de la flor.'},
+    {q:'Los delfines son peces.',o:['Verdadero','Falso'],a:1,t:'Son mamíferos: respiran aire y amamantan a sus crías.'},
+    {q:'La Torre Eiffel crece unos centímetros en verano.',o:['Verdadero','Falso'],a:0,t:'El hierro se dilata con el calor.'},
+    {q:'Los koalas son una especie de oso.',o:['Verdadero','Falso'],a:1,t:'Son marsupiales, como los canguros.'},
+    {q:'Las jirafas tienen más vértebras en el cuello que los humanos.',o:['Verdadero','Falso'],a:1,t:'Ambos tenemos siete; las de la jirafa son enormes.'},
+    {q:'El Everest es la montaña más alta medida desde el nivel del mar.',o:['Verdadero','Falso'],a:0,t:'Tiene unos 8.849 metros.'},
+    {q:'La Gran Muralla China se ve a simple vista desde la Luna.',o:['Verdadero','Falso'],a:1,t:'Es demasiado angosta para verse desde tan lejos.'},
+    {q:'El corazón humano late más de 100.000 veces por día.',o:['Verdadero','Falso'],a:0,t:'Unas 100.000, a un ritmo de reposo normal.'},
+    {q:'Los pingüinos viven en el Polo Norte.',o:['Verdadero','Falso'],a:1,t:'Viven sobre todo en el hemisferio sur.'},
+    {q:'Una persona adulta tiene alrededor de un 60 % de agua.',o:['Verdadero','Falso'],a:0,t:'El agua es el componente principal del cuerpo.'},
+    {q:'La ballena azul es el animal más grande que existió.',o:['Verdadero','Falso'],a:0,t:'Supera a cualquier dinosaurio conocido.'},
+    {q:'Un rayo nunca cae dos veces en el mismo lugar.',o:['Verdadero','Falso'],a:1,t:'Es un mito: edificios altos reciben rayos todos los años.'},
+    {q:'Los gatos ven mejor que los humanos con poca luz.',o:['Verdadero','Falso'],a:0,t:'Sus ojos están adaptados para cazar de noche.'},
+    {q:'La luz del Sol tarda unos 8 minutos en llegar a la Tierra.',o:['Verdadero','Falso'],a:0,t:'Son unos 150 millones de kilómetros.'},
+    {q:'El diamante y el grafito están hechos del mismo elemento.',o:['Verdadero','Falso'],a:0,t:'Los dos son carbono, ordenado de otra forma.'},
+    {q:'Los camellos guardan agua en sus jorobas.',o:['Verdadero','Falso'],a:1,t:'Guardan grasa, que les sirve de reserva de energía.'},
+    {q:'Un rayo es más caliente que la superficie del Sol.',o:['Verdadero','Falso'],a:0,t:'Puede superar los 25.000 °C.'},
+    {q:'El portugués es idioma oficial en Brasil y en Argentina.',o:['Verdadero','Falso'],a:1,t:'En Argentina es el español; el portugués es oficial en Brasil.'}
+  ]
+});
+
+/* ===== ahorcado ===== */
+var Hang=(function(){
+  var WORDS=[['CANGURO','Animal'],['ELEFANTE','Animal'],['JIRAFA','Animal'],['PINGUINO','Animal'],['TORTUGA','Animal'],['ZANAHORIA','Verdura'],['EMPANADA','Comida'],['ALFAJOR','Dulce'],['HELADO','Postre'],['PIZZA','Comida'],['BICICLETA','Transporte'],['AEROPUERTO','Lugar'],['PLAYA','Lugar'],['CASCADA','Naturaleza'],['VOLCAN','Naturaleza'],['PLANETA','Espacio'],['COHETE','Espacio'],['PELICULA','Cine'],['PALOMITAS','Cine'],['CUMPLEAÑOS','Fiesta'],['MALETA','Viajes'],['PASAPORTE','Viajes'],['TERMO','Mate'],['BOMBILLA','Mate'],['AUDIFONOS','Objeto'],['CALENDARIO','Objeto'],['SOMBRERO','Ropa'],['BUFANDA','Ropa'],['RELOJ','Objeto'],['LINTERNA','Objeto'],['MARIPOSA','Animal'],['CARACOL','Animal'],['MURCIELAGO','Animal'],['GUITARRA','Música'],['VIOLIN','Música'],['CHOCOLATE','Comida'],['MERMELADA','Comida'],['MANZANA','Fruta'],
+    ['BIBLIOTECA','Lugar'],['MONTAÑA','Naturaleza'],['AMANECER','Naturaleza'],['ARCOIRIS','Naturaleza'],['ESTRELLA','Cielo'],['TELESCOPIO','Objeto'],['PARAGUAS','Objeto'],['ESPEJO','Objeto'],
+    ['AVENTURA','Palabra linda'],['CAMINATA','Actividad'],['SOMBRERO','Prenda'],['SUNSHINE','En inglés'],['COFFEE','En inglés'],['WINDOW','En inglés'],['GARDEN','En inglés'],['JOURNEY','En inglés']];
+  var LET='ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'.split('');
+  var word='', guessed={}, lives=6, over=false, kb=$('hgKb'), lastWin='';
+  function draw(){
+    var out=[]; for(var i=0;i<word.length;i++){ var c=word.charAt(i); out.push(guessed[c]||over?c:'_'); }
+    $('hgWord').textContent=out.join(' ');
+    var h=''; for(var k=0;k<6;k++) h+=(k<lives?'♥':'♡'); $('hgLives').textContent=h;
+  }
+  function start(){
+    var pk=WORDS[Math.floor(Math.random()*WORDS.length)]; word=pk[0]; guessed={}; lives=6; over=false;
+    $('hgHint').textContent='Pista: '+pk[1]; $('hgMsg').textContent=''; $('hgAgain').hidden=true; $('hgShare').hidden=true;
+    kb.innerHTML='';
+    LET.forEach(function(L){ var b=document.createElement('button'); b.className='key'; b.textContent=L; b.setAttribute('aria-label','Letra '+L); b.addEventListener('click',function(){ guess(L); }); kb.appendChild(b); });
+    draw();
+  }
+  function guess(L){
+    if(over||guessed[L]) return; guessed[L]=true;
+    var btn=Array.prototype.filter.call(kb.children,function(b){ return b.textContent===L; })[0];
+    var hit=word.indexOf(L)>=0;
+    if(btn){ btn.disabled=true; btn.classList.add(hit?'hit':'miss'); }
+    if(hit) sFlip(); else{ lives--; sBad(); }
+    var won=word.split('').every(function(c){ return guessed[c]; });
+    if(won){ over=true; var st=5+lives*2; addStars(st); sGood(); $('hgMsg').textContent='¡Bien! +'+st+' estrellas'; $('hgAgain').hidden=false; $('hgShare').hidden=false; lastWin=word; }
+    else if(lives<=0){ over=true; $('hgMsg').textContent='La palabra era '+word+'. ¡La próxima sale!'; $('hgAgain').hidden=false; }
+    draw();
+    if(over) $('hgAgain').focus();
+  }
+  document.addEventListener('keydown',function(e){
+    if(current!=='hang'||e.ctrlKey||e.metaKey||e.altKey) return;
+    var k=e.key.length===1?e.key.toUpperCase():''; if(k&&LET.indexOf(k)>=0) guess(k);
+  });
+  $('hgAgain').addEventListener('click',start);
+  $('hgShare').addEventListener('click',function(){ openShare(resultText('el Ahorcado y adiviné la palabra '+lastWin)); });
+  return {start:start};
+})();
+
+/* ===== ordená la frase ===== */
+var Order=(function(){
+  var S=[['I need a little more time','Necesito un poquito más de tiempo'],['Let us have lunch together','Almorcemos juntos'],['Do you know a good restaurant','¿Conocés un buen restaurante?'],['My flight leaves at noon','Mi vuelo sale al mediodía'],['I forgot my umbrella at home','Me olvidé el paraguas en casa'],['She is reading a very funny book','Ella está leyendo un libro muy divertido'],['Can I pay by card','¿Puedo pagar con tarjeta?'],['We should take a short break','Deberíamos hacer un descanso corto'],['The train is ten minutes late','El tren llega diez minutos tarde'],['I usually wake up very early','Suelo despertarme muy temprano'],['Please turn off your phone','Por favor, apagá tu celular'],['That sounds like a great idea','Suena como una gran idea'],['He always drinks tea in the morning','Él siempre toma té a la mañana'],['Could I have the bill please','¿Me trae la cuenta, por favor?'],['I would like a coffee please','Quisiera un café, por favor'],['Where is the bus station','¿Dónde está la estación de ómnibus?'],['Can you help me with this','¿Podés ayudarme con esto?'],
+    ['What time does the museum open','¿A qué hora abre el museo?'],['We are going to the beach tomorrow','Mañana vamos a la playa'],['She plays the guitar every day','Ella toca la guitarra todos los días'],
+    ['How much does this cost','¿Cuánto cuesta esto?'],['I am looking for a good book','Estoy buscando un buen libro'],['Nice to meet you my name is Ana','Mucho gusto, me llamo Ana'],['Could you repeat that please','¿Podrías repetir eso, por favor?'],
+    ['I love walking in the park','Me encanta caminar por el parque'],['The weather is beautiful today','Hoy el clima está hermoso']];
+  var rounds=[], ri=0, okc=0, picked=[], toks=[], tries=0, done=false, gained=0;
+  function render(){
+    var slots=$('orSlots'), pool=$('orPool'); slots.innerHTML=''; pool.innerHTML='';
+    picked.forEach(function(ix){ var b=document.createElement('button'); b.className='wchip'; b.textContent=toks[ix].w; b.addEventListener('click',function(){ if(done) return; picked.splice(picked.indexOf(ix),1); render(); }); slots.appendChild(b); });
+    toks.forEach(function(t,ix){ var b=document.createElement('button'); b.className='wchip'; b.textContent=t.w; b.disabled=picked.indexOf(ix)>=0||done; b.addEventListener('click',function(){ picked.push(ix); sFlip(); render(); }); pool.appendChild(b); });
+  }
+  function load(){
+    var r=rounds[ri]; done=false; tries=0; picked=[]; $('orFb').textContent=''; $('orNext').hidden=true; $('orCheck').hidden=false; $('orClear').hidden=false; $('orSlots').classList.remove('good');
+    $('orMeta').textContent='Frase '+(ri+1)+' de '+rounds.length; $('orScore').textContent='Aciertos: '+okc; $('orEs').textContent=r[1];
+    var w=r[0].split(' ').map(function(x,i){ return {w:x,i:i}; });
+    do{ toks=shuffle(w); }while(toks.map(function(t){return t.i;}).join()===w.map(function(t){return t.i;}).join());
+    render();
+  }
+  function start(){ rounds=shuffle(S).slice(0,6); ri=0; okc=0; gained=0; load(); }
+  function end(){
+    addStars(gained);
+    $('orMeta').textContent='¡Terminaste!'; $('orScore').textContent='';
+    $('orEs').textContent=okc+' de '+rounds.length+' frases ordenadas · +'+gained+' estrellas';
+    $('orSlots').innerHTML=''; $('orPool').innerHTML=''; $('orFb').textContent=okc>=4?'¡Muy bien! Tu inglés va sumando.':'Buen comienzo, cada ronda ayuda.';
+    $('orCheck').hidden=true; $('orClear').hidden=true; $('orNext').hidden=false; $('orNext').textContent='Otra ronda'; ri=-1;
+  }
+  $('orClear').addEventListener('click',function(){ if(done) return; picked=[]; render(); });
+  $('orCheck').addEventListener('click',function(){
+    if(done||picked.length<toks.length){ $('orFb').textContent='Usá todas las palabras.'; return; }
+    var r=rounds[ri], got=picked.map(function(ix){return toks[ix].w;}).join(' ');
+    if(got===r[0]){
+      done=true; okc++; var g=tries===0?4:2; gained+=g; sGood(); $('orSlots').classList.add('good'); $('orFb').textContent='¡Perfecto! +'+g+' estrellas'; $('orScore').textContent='Aciertos: '+okc; render();
+      $('orCheck').hidden=true; $('orNext').hidden=false; $('orNext').textContent=ri+1<rounds.length?'Siguiente':'Ver resultado'; $('orNext').focus();
+    }else{
+      tries++; sBad();
+      if(tries>=2){ done=true; $('orFb').textContent='Era: '+r[0]+'.'; render(); $('orCheck').hidden=true; $('orNext').hidden=false; $('orNext').textContent=ri+1<rounds.length?'Siguiente':'Ver resultado'; }
+      else $('orFb').textContent='Casi. Probá otra vez, tocá una palabra para sacarla.';
+    }
+  });
+  $('orNext').addEventListener('click',function(){ if(ri===-1){ $('orClear').hidden=false; start(); return; } ri++; if(ri<rounds.length) load(); else end(); });
+  return {start:start};
+})();
+
+
+
+var Cine=QuizEngine($('qCine'),{key:'lumi-best-ci',title:'Cine y música',n:8,per:5,after:'Seguí que sabés un montón.',desc:'8 preguntas de películas, cantantes y bandas. Cada ronda trae otras distintas.',bank:[
+    {q:'¿Qué película muestra a Jack y Rose en un barco que choca con un iceberg?',o:['Titanic', 'Avatar', 'Gladiador'],t:'Dirigida por James Cameron en 1997.'},
+    {q:'¿De qué país es la banda ABBA?',o:['Suecia', 'Noruega', 'Inglaterra'],t:'“Dancing Queen” es su gran clásico.'},
+    {q:'¿Qué película animada cuenta la historia de un pez payaso que busca a su hijo?',o:['Buscando a Nemo', 'La sirenita', 'Shrek'],t:'De Pixar, estrenada en 2003.'},
+    {q:'¿Quién es conocido como el “Rey del Pop”?',o:['Michael Jackson', 'Elvis Presley', 'Prince'],t:'“Thriller” es el disco más vendido de la historia.'},
+    {q:'¿Qué banda de Liverpool cantó “Hey Jude”?',o:['The Beatles', 'The Rolling Stones', 'Queen'],t:'Salió en 1968.'},
+    {q:'¿Qué cantante colombiana canta “Hips Don’t Lie” y “Waka Waka”?',o:['Shakira', 'Karol G', 'Thalía'],t:'Nació en Barranquilla.'},
+    {q:'¿Quién interpretó a Jack Sparrow en “Piratas del Caribe”?',o:['Johnny Depp', 'Brad Pitt', 'Orlando Bloom'],t:'Su personaje es un pirata excéntrico.'},
+    {q:'¿En qué saga se dice “Que la fuerza te acompañe”?',o:['Star Wars', 'Harry Potter', 'Matrix'],t:'Es la frase más famosa de la saga.'},
+    {q:'¿Qué instrumento es el símbolo del tango?',o:['Bandoneón', 'Arpa', 'Trompeta'],t:'Es parecido a un acordeón pequeño.'},
+    {q:'¿Quién compuso “Para Elisa”?',o:['Beethoven', 'Mozart', 'Chopin'],t:'Es una de las piezas de piano más conocidas.'},
+    {q:'Gustavo Cerati fue el líder de…',o:['Soda Stereo', 'Los Redondos', 'Los Fabulosos Cadillacs'],t:'“De música ligera” es su gran clásico.'},
+    {q:'¿Cómo se llama el protagonista de “El rey león”?',o:['Simba', 'Mufasa', 'Timón'],t:'Mufasa es su papá.'},
+    {q:'¿Qué ritmo nació en Brasil?',o:['Samba', 'Tango', 'Cumbia'],t:'Es el ritmo del carnaval de Río.'},
+    {q:'¿Cuál fue la primera película argentina en ganar un Oscar?',o:['La historia oficial', 'El secreto de sus ojos', 'Relatos salvajes'],t:'Ganó en 1986. “El secreto de sus ojos” ganó en 2010.'},
+    {q:'¿Quién canta “Rolling in the Deep”?',o:['Adele', 'Beyoncé', 'Rihanna'],t:'Es de 2010.'},
+    {q:'¿De qué país es Bad Bunny?',o:['Puerto Rico', 'México', 'República Dominicana'],t:'Nació en Vega Baja.'},
+    {q:'¿Qué película tiene un ogro verde que vive en un pantano?',o:['Shrek', 'Mulán', 'Moana'],t:'Su amigo es un burro parlanchín.'},
+    {q:'¿Cuántas cuerdas tiene una guitarra clásica?',o:['Seis', 'Cuatro', 'Ocho'],t:'De la más grave a la más aguda: mi, la, re, sol, si, mi.'},
+    {q:'¿Cómo se llama el vaquero de “Toy Story”?',o:['Woody', 'Buzz', 'Rex'],t:'Buzz Lightyear es el astronauta.'},
+    {q:'¿Quién fue el cantante de Queen?',o:['Freddie Mercury', 'Elton John', 'David Bowie'],t:'“Bohemian Rhapsody” es su gran himno.'},
+    {q:'¿Dónde se hace el Carnaval más famoso de Brasil?',o:['Río de Janeiro', 'Brasilia', 'Curitiba'],t:'El desfile se hace en el Sambódromo.'},
+    {q:'¿Cómo se llama el colegio de magia de Harry Potter?',o:['Hogwarts', 'Beauxbatons', 'Durmstrang'],t:'Está en Escocia, en la ficción.'},
+    {q:'¿Qué película de Disney tiene la canción “Libre soy”?',o:['Frozen', 'Moana', 'Encanto'],t:'La canta Elsa.'},
+    {q:'¿Quién dirigió “Titanic”?',o:['James Cameron', 'Steven Spielberg', 'Christopher Nolan'],t:'También dirigió “Avatar”.'},
+    {q:'¿Qué actor interpreta a Iron Man en el cine de Marvel?',o:['Robert Downey Jr.', 'Chris Evans', 'Mark Ruffalo'],t:'Debutó como Tony Stark en 2008.'},
+    {q:'¿Cómo se llama el ratón más famoso de Disney?',o:['Mickey Mouse', 'Speedy', 'Stuart Little'],t:'Nació en 1928.'},
+    {q:'¿Qué famosa película argentina protagonizó Ricardo Darín y ganó un Oscar en 2010?',o:['El secreto de sus ojos', 'Nueve reinas', 'Luna de Avellaneda'],t:'Ganó el Oscar a mejor película extranjera.'},
+    {q:'¿Qué instrumento tiene 88 teclas?',o:['Piano', 'Órgano pequeño', 'Acordeón'],t:'Tiene teclas blancas y negras.'},
+    {q:'¿Qué película animada tiene un robot basurero llamado WALL·E?',o:['WALL·E', 'Robots', 'Cars'],t:'De Pixar, 2008.'},
+    {q:'¿Qué película tiene un auto que viaja en el tiempo, un DeLorean?',o:['Volver al futuro', 'Matrix', 'Jumanji'],t:'Marty McFly y el Doc Brown son los protagonistas.'}
+]});
+var Acert=QuizEngine($('qAcert'),{key:'lumi-best-ac',title:'Acertijos',n:6,per:6,after:'¡A seguir pensando!',desc:'6 adivinanzas por ronda. Pensá un poquito antes de elegir.',bank:[
+    {q:'Tiene ciudades pero no casas, ríos pero no agua. ¿Qué es?',o:['Un mapa', 'Un sueño', 'Un libro'],t:'Es una representación del mundo.'},
+    {q:'Cuanto más le sacás, más grande se hace. ¿Qué es?',o:['Un pozo', 'Un globo', 'Una torta'],t:'¡Cavás y crece!'},
+    {q:'Tiene manos pero no puede aplaudir. ¿Qué es?',o:['Un reloj', 'Un guante', 'Una estatua'],t:'Las manecillas.'},
+    {q:'Tiene dientes pero no muerde. ¿Qué es?',o:['Un peine', 'Un perro de juguete', 'Una sierra vieja'],t:'Y te ayuda a peinarte.'},
+    {q:'Vuela sin alas y llora sin ojos. ¿Qué es?',o:['Una nube', 'El viento', 'Un globo'],t:'Cuando llueve, “llora”.'},
+    {q:'Cuanto más seca, más se moja. ¿Qué es?',o:['Una toalla', 'Una esponja', 'Un paraguas'],t:'Se seca vos y se moja ella.'},
+    {q:'Tiene cuello pero no cabeza. ¿Qué es?',o:['Una botella', 'Una camisa', 'Una guitarra'],t:'Y también tiene tapón.'},
+    {q:'¿Qué sube cada año pero nunca baja?',o:['La edad', 'El precio', 'El sol'],t:'Cumpleaños tras cumpleaños.'},
+    {q:'Blanca por dentro, verde por fuera; si querés que te lo diga, esperá. ¿Qué es?',o:['La pera', 'El pepino', 'La lima'],t:'“Pera”, espera.'},
+    {q:'Oro parece, plata no es. ¿Qué es?',o:['El plátano', 'El limón', 'La mandarina'],t:'Un clásico del refranero.'},
+    {q:'Tiene patas pero no camina. ¿Qué es?',o:['Una mesa', 'Un caracol', 'Un pulpo de peluche'],t:'Y sostiene muchas cosas.'},
+    {q:'Tiene hojas pero no es un árbol. ¿Qué es?',o:['Un libro', 'Un jardín', 'Una planta de plástico'],t:'Y también tiene lomo.'},
+    {q:'Tiene teclas pero no abre puertas. ¿Qué es?',o:['Un piano', 'Un llavero', 'Un candado'],t:'Y suena lindo.'},
+    {q:'Cuanto más grande es, menos se ve. ¿Qué es?',o:['La oscuridad', 'Un secreto', 'El humo'],t:'Más oscuro, menos ves.'},
+    {q:'Si lo nombrás, desaparece. ¿Qué es?',o:['El silencio', 'Un fantasma', 'El humo'],t:'Al decir “silencio”, lo rompés.'},
+    {q:'Tiene un ojo pero no puede ver. ¿Qué es?',o:['Una aguja', 'Un huracán', 'Una cámara apagada'],t:'Y también sirve para coser.'},
+    {q:'¿Cuántos meses del año tienen 28 días?',o:['Los doce', 'Solo febrero', 'Ninguno'],t:'Todos tienen al menos 28 días.'},
+    {q:'¿Qué pesa más: un kilo de plumas o un kilo de hierro?',o:['Pesan lo mismo', 'El hierro', 'Las plumas'],t:'¡Los dos son un kilo!'},
+    {q:'¿Qué tiene que romperse antes de poder usarse?',o:['Un huevo', 'Un vaso', 'Un espejo'],t:'Para cocinar con él.'},
+    {q:'¿Qué palabra se escribe mal en todos los diccionarios?',o:['Mal', 'Error', 'Equivocación'],t:'Se escribe “mal”.'},
+    {q:'Dos hermanas que corren siempre juntas pero nunca se alcanzan. ¿Qué son?',o:['Las ruedas de una bici', 'Dos gemelas', 'Dos sombras'],t:'Una va siempre detrás de la otra.'},
+    {q:'Va al mercado y nunca compra; hace ruido y no habla. ¿Qué es?',o:['La campana', 'El carrito', 'El eco'],t:'Una adivinanza clásica sobre una campana.'},
+    {q:'Tiene cabeza y no tiene cuerpo, tiene un solo pie y no camina. ¿Qué es?',o:['Un alfiler', 'Un clavo oxidado', 'Un martillo'],t:'Pequeño y punzante.'},
+    {q:'Lo tienes tú, pero lo usan más los demás. ¿Qué es?',o:['Tu nombre', 'Tu casa', 'Tu celular'],t:'Siempre te llaman por él.'}
+]});
+/* ===== duelo con amigos ===== */
+var Duelo=(function(){
+  var code='';
+  function rnd(seed){ var a=0; for(var i=0;i<seed.length;i++){ a=(a*31+seed.charCodeAt(i))>>>0; } return function(){ a=(a+0x6D2B79F5)>>>0; var t=a; t=Math.imul(t^t>>>15,t|1); t^=t+Math.imul(t^t>>>7,t|61); return ((t^t>>>14)>>>0)/4294967296; }; }
+  function pool(){
+    var out=[]; [English.bank,Interview.bank,TF.bank,Cine.bank,Acert.bank].forEach(function(b){ b.forEach(function(q){ var c={q:q.q,o:q.o,a:q.a,t:q.t}; if(q.o[0]==='Verdadero') c.fixed=true; out.push(c); }); });
+    out.sort(function(x,y){ return x.q<y.q?-1:1; }); return out;
+  }
+  function pick(){ var r=rnd(code), p=pool(), keys=p.map(function(q){ return [r(),q]; }); keys.sort(function(a,b){ return a[0]-b[0]; }); return keys.slice(0,8).map(function(k){ return k[1]; }); }
+  function newCode(){ var c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789',s=''; for(var i=0;i<5;i++) s+=c.charAt(Math.floor(Math.random()*c.length)); return s; }
+  var eng=QuizEngine($('qDuelo'),{key:'lumi-best-du',title:'Duelo con amigos',n:8,per:5,after:'Compartí tu resultado y desafiá a alguien.',desc:'',bank:[],
+    picker:pick,
+    shareText:function(ok,n){ return 'Te desafío en Vivia Vuela (Duelo con amigos): código '+code+'. Yo saqué '+ok+' de '+n+'. ¿Podés superarme? Entrá en '+SHARE_URL+', abrí “Duelo con amigos”, elegí “Tengo un código” y poné '+code+'. · Hecho por Bluvia'; },
+    customHome:function(root,begin){
+      root.innerHTML='';
+      var h=document.createElement('h2'); h.textContent='Duelo con amigos'; root.appendChild(h);
+      var p=document.createElement('p'); p.textContent='Creá un desafío y pasale el código a un amigo: los dos responden las mismas 8 preguntas y comparan quién acertó más.'; root.appendChild(p);
+      var b1=document.createElement('button'); b1.className='btn'; b1.textContent='Crear un desafío nuevo';
+      b1.addEventListener('click',function(){ code=newCode(); root.innerHTML=''; var h2=document.createElement('h2'); h2.textContent='Tu código'; root.appendChild(h2); var cb=document.createElement('div'); cb.className='codebox'; cb.textContent=code; root.appendChild(cb);
+        var q=document.createElement('p'); q.textContent='Jugá primero y después compartí tu resultado con el código.'; root.appendChild(q);
+        var go1=document.createElement('button'); go1.className='btn'; go1.textContent='¡A jugar!'; go1.addEventListener('click',begin); root.appendChild(go1); });
+      root.appendChild(b1);
+      var lb=document.createElement('label'); lb.className='lbl'; lb.textContent='¿Te pasaron un código?'; var inp=document.createElement('input'); inp.className='fld'; inp.maxLength=8; inp.autocomplete='off'; inp.placeholder='Ej.: K7P2Q'; lb.appendChild(inp); root.appendChild(lb);
+      var b2=document.createElement('button'); b2.className='ghost'; b2.textContent='Tengo un código';
+      var msg=document.createElement('p'); msg.setAttribute('aria-live','polite');
+      b2.addEventListener('click',function(){ var v=inp.value.trim().toUpperCase().replace(/[^A-Z0-9]/g,''); if(v.length<4){ msg.textContent='Escribí el código completo.'; return; } code=v; begin(); });
+      root.appendChild(b2); root.appendChild(msg);
+    }});
+  return eng;
+})();
+/* ===== jardín en calma ===== */
+var Zen=(function(){
+  var cv=$('znCanvas'), cx=cv.getContext('2d'), W=360, H=520, raf=0, run=false, fl=[], pet=[], ff=[], n=0, last=0, pi=0;
+  cv.width=W; cv.height=H;
+  var PH=['Respirá hondo. No hay apuro.','Cada flor tarda lo que tarda.','Soltá los hombros.','Este momento es tuyo.','Despacito también se llega.','Mirá cómo florece sin esfuerzo.','Todo pasa, todo florece.','Una cosa a la vez.'];
+  var NOTES=[261.6,293.7,329.6,392,440,523.3,587.3,659.3];
+  var COLS=[['#FF9CC8','#FFD36B'],['#B79CFF','#FFF2A8'],['#7FE3D6','#FFFFFF'],['#FFB38A','#FFE9A8'],['#F36CAE','#FFD36B']];
+  for(var i=0;i<22;i++) ff.push({x:Math.random()*W,y:Math.random()*H,p:Math.random()*6,s:.2+Math.random()*.4});
+  function plant(x,y){
+    ensureAudio(); y=Math.min(y,H-60); var c=COLS[Math.floor(Math.random()*COLS.length)];
+    fl.push({x:x,y:y,age:0,h:50+Math.random()*50,r:12+Math.random()*10,c:c,np:5+Math.floor(Math.random()*3),sw:Math.random()*6});
+    if(fl.length>60) fl.shift();
+    tone(NOTES[Math.floor(Math.random()*NOTES.length)],1.2,'sine',.07);
+    for(var k=0;k<6;k++) pet.push({x:x,y:y-30,vx:(Math.random()-.5)*.6,vy:-.2-Math.random()*.4,a:1,c:c[0]});
+    n++; $('znCount').textContent=n+(n===1?' flor':' flores');
+    if(n%10===0){ addStars(1); toast('+1 estrella por tu jardín'); }
+    if(n%4===1){ pi=(pi+1)%PH.length; $('znPhrase').textContent=PH[pi]; }
+  }
+  function ptr(e){ var r=cv.getBoundingClientRect(); plant((e.clientX-r.left)*W/r.width,(e.clientY-r.top)*H/r.height); }
+  cv.addEventListener('pointerdown',function(e){ e.preventDefault(); ptr(e); });
+  cv.style.touchAction='none';
+  function draw(ts){
+    if(!run) return; var dt=Math.min(.05,(ts-last)/1000||.016); last=ts;
+    var g=cx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#2B1650'); g.addColorStop(.6,'#4B2A6B'); g.addColorStop(1,'#1F5A66'); cx.fillStyle=g; cx.fillRect(0,0,W,H);
+    cx.fillStyle='#FFFFFF22'; for(var m=0;m<3;m++){ cx.beginPath(); cx.arc(70+m*110,60+m*10,1.5,0,7); cx.fill(); }
+    ff.forEach(function(f){ f.p+=dt*f.s; f.x+=Math.sin(f.p)*.2; f.y+=Math.cos(f.p*.8)*.15; var a=.35+.35*Math.sin(f.p*3); cx.fillStyle='rgba(255,230,150,'+a+')'; cx.beginPath(); cx.arc((f.x+W)%W,(f.y+H)%H,2.2,0,7); cx.fill(); });
+    cx.fillStyle='#16423F'; cx.beginPath(); cx.moveTo(0,H-30); cx.quadraticCurveTo(W/2,H-60,W,H-30); cx.lineTo(W,H); cx.lineTo(0,H); cx.fill();
+    fl.forEach(function(f){
+      f.age+=dt; var q=Math.min(1,f.age/1.6), e=1-Math.pow(1-q,3), sway=Math.sin(f.age*1.2+f.sw)*3*e;
+      var tx=f.x+sway, ty=f.y-f.h*e;
+      cx.strokeStyle='#4FBF8F'; cx.lineWidth=2.5; cx.beginPath(); cx.moveTo(f.x,f.y); cx.quadraticCurveTo(f.x+sway*.3,f.y-f.h*e*.5,tx,ty); cx.stroke();
+      cx.save(); cx.translate(tx,ty); cx.rotate(sway*.03);
+      var r=f.r*e; for(var i=0;i<f.np;i++){ cx.save(); cx.rotate(i*6.283/f.np+f.age*.15); cx.fillStyle=f.c[0]; cx.beginPath(); cx.ellipse(0,-r*.7,r*.45,r*.8,0,0,7); cx.fill(); cx.restore(); }
+      cx.fillStyle=f.c[1]; cx.beginPath(); cx.arc(0,0,r*.38,0,7); cx.fill(); cx.restore();
+    });
+    pet=pet.filter(function(p){ return p.a>0; });
+    pet.forEach(function(p){ p.x+=p.vx; p.y+=p.vy; p.vy+=.004; p.a-=dt*.5; cx.globalAlpha=Math.max(0,p.a); cx.fillStyle=p.c; cx.beginPath(); cx.arc(p.x,p.y,2.6,0,7); cx.fill(); });
+    cx.globalAlpha=1;
+    if(!fl.length){ cx.fillStyle='#FFFFFFCC'; cx.font='700 16px Nunito, sans-serif'; cx.textAlign='center'; cx.fillText('Tocá la pantalla para plantar una flor',W/2,H/2); }
+    raf=requestAnimationFrame(draw);
+  }
+  function enter(){ if(run) return; run=true; last=performance.now(); if(!$('znPhrase').textContent) $('znPhrase').textContent=PH[0]; raf=requestAnimationFrame(draw); }
+  var amb=null, birdT=0;
+  function stopAmb(){ clearInterval(birdT); birdT=0; if(amb){ try{ amb.g.gain.setTargetAtTime(0,ac.currentTime,.2); var a=amb; setTimeout(function(){ try{ a.src.stop(); if(a.lfo) a.lfo.stop(); }catch(e){} },900); }catch(e){} amb=null; } }
+  function startAmb(kind){
+    stopAmb(); if(!kind) return; ensureAudio(); if(!ac||!soundOn) return;
+    if(kind==='birds'){ birdT=setInterval(function(){ var f=2200+Math.random()*1600; tone(f,.12,'sine',.05,1.25); setTimeout(function(){ tone(f*1.15,.1,'sine',.04,1.2); },140); if(Math.random()<.5) setTimeout(function(){ tone(f*.9,.14,'sine',.035,1.3); },300); },1400+Math.random()*1200); return; }
+    var len=ac.sampleRate*3, buf=ac.createBuffer(1,len,ac.sampleRate), d=buf.getChannelData(0), last=0;
+    for(var i=0;i<len;i++){ var w=Math.random()*2-1; last=(last+.02*w)/1.02; d[i]=kind==='sea'?last*3.5:w*.6; }
+    var src=ac.createBufferSource(); src.buffer=buf; src.loop=true; var g=ac.createGain(), fl=ac.createBiquadFilter(), o={src:src,g:g};
+    if(kind==='rain'){ fl.type='highpass'; fl.frequency.value=900; g.gain.value=.0001; g.gain.setTargetAtTime(.09,ac.currentTime,.6); }
+    else{ fl.type='lowpass'; fl.frequency.value=700; g.gain.value=.0001; var lfo=ac.createOscillator(), lg=ac.createGain(); lfo.frequency.value=.11; lg.gain.value=.06; lfo.connect(lg); lg.connect(g.gain); lfo.start(); o.lfo=lfo; g.gain.setTargetAtTime(.12,ac.currentTime,.8); }
+    src.connect(fl); fl.connect(g); g.connect(ac.destination); src.start(); amb=o;
+  }
+  Array.prototype.forEach.call($('znSnd').children,function(b){ b.addEventListener('click',function(){ Array.prototype.forEach.call($('znSnd').children,function(c){ c.setAttribute('aria-pressed',String(c===b)); }); startAmb(b.getAttribute('data-a')); }); });
+  function leave(){ run=false; cancelAnimationFrame(raf); stopAmb(); Array.prototype.forEach.call($('znSnd').children,function(c,k){ c.setAttribute('aria-pressed',String(k===0)); }); }
+  $('znClear').addEventListener('click',function(){ fl=[]; pet=[]; n=0; $('znCount').textContent='0 flores'; sFlip(); });
+  return {enter:enter,leave:leave};
+})();
+/* ===== retos del día ===== */
+var Grat=(function(){
+  var B=[
+   ['Tomá un vaso de agua despacio, sin mirar el celular','1 min'],['Estirate como un gato durante 30 segundos','1 min'],['Hacé 10 sentadillas ahora mismo','2 min'],
+   ['Mandale un audio cariñoso a alguien que quieras','2 min'],['Escribile “gracias” a alguien que te ayudó esta semana','2 min'],['Contá hasta 10 respirando lento','1 min'],
+   ['Poné tu canción favorita y cantá un estribillo','3 min'],['Decí en voz alta tres cosas que ves de color azul','1 min'],['Aprendé una palabra nueva en inglés y usala en una frase','3 min'],
+   ['Sonreíle a la primera persona que veas','1 min'],['Ordená un solo cajón o un rincón de tu mesa','5 min'],['Caminá 5 minutos sin mirar el celular','5 min'],
+   ['Hacé un cumplido sincero a alguien','1 min'],['Escribí una meta pequeña para mañana','2 min'],['Mirá por la ventana 1 minuto y nombrá 5 cosas que ves','1 min'],
+   ['Hacé una mueca graciosa frente al espejo y reíte','1 min'],['Tomá una foto de algo lindo que encuentres hoy','2 min'],['Pensá en un recuerdo que te haga reír','1 min'],
+   ['Hacé 5 minutos de estiramiento de cuello y hombros','5 min'],['Preparate algo rico y comelo sin apuro','10 min'],['Contale un chiste a alguien (aunque sea malo)','2 min'],
+   ['Decí “yo puedo” tres veces frente al espejo','1 min'],['Dejá el celular en otra habitación por 15 minutos','15 min'],['Escribí 3 cosas que se te dan bien','3 min'],
+   ['Bailá una canción entera, como si nadie te mirara','4 min'],['Escribí a mano tu nombre con la mano que no usás','1 min'],['Armá una lista de 3 lugares que querés visitar','3 min'],
+   ['Hacé una pausa y cerrá los ojos 60 segundos','1 min'],['Averiguá un dato curioso y compartilo con alguien','3 min'],['Tendé la cama o acomodá tus almohadones','2 min'],
+   ['Salí al aire libre y respirá hondo 5 veces','2 min'],['Llamá a alguien que hace tiempo no escuchás','5 min'],['Escribí una frase que te inspire','2 min'],
+   ['Inventá un nombre divertido para tu planta, tu taza o tu mate','1 min'],['Decí tu trabajo en una frase en inglés, en voz alta','2 min'],['Hacé el desafío de no quejarte durante una hora','60 min'],
+   ['Elegí tu foto favorita del año y mirala un rato','2 min'],['Imaginá tu día ideal y escribí 3 líneas','3 min'],['Tomá un té o un café mirando el cielo','5 min'],
+   ['Aplaudite por algo que hiciste esta semana','1 min'],['Escuchá una canción que no conozcas','4 min'],['Dibujá un garabato en un papel, sin pensar','2 min'],
+   ['Pensá en alguien y deseale algo lindo en silencio','1 min'],['Hacé 10 saltitos y sacudí los brazos','1 min'],['Descubrí algo nuevo del lugar donde vivís','5 min'],
+   ['Decí en voz alta algo que te sale bien','1 min'],['Escribí una pregunta curiosa y buscá la respuesta','4 min'],['Cerrá los ojos y recordá un olor que te encanta','1 min']];
+  function key(d){ var m=d.getMonth()+1, dd=d.getDate(); return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dd<10?'0':'')+dd; }
+  function load(){ try{ var o=JSON.parse(Store.get('lumi-reto','{}')); return (o&&typeof o==='object')?o:{}; }catch(e){ return {}; } }
+  function save(o){ Store.set('lumi-reto',JSON.stringify(o)); }
+  function streak(o){
+    var d=new Date(), n=0; function any(k){ return o[k]&&o[k].done&&o[k].done.some(Boolean); }
+    if(!any(key(d))) d.setDate(d.getDate()-1);
+    while(any(key(d))){ n++; d.setDate(d.getDate()-1); } return n;
+  }
+  function today(o){
+    var k=key(new Date());
+    if(!o[k]||!o[k].ids){
+      var base=Math.floor(Date.now()/86400000), ids=[], i=0;
+      while(ids.length<3){ var x=(base*7+i*13+i*i)%B.length; if(ids.indexOf(x)<0) ids.push(x); i++; }
+      o[k]={ids:ids,done:[false,false,false]};
+      var ks=Object.keys(o).sort(); while(ks.length>20){ delete o[ks.shift()]; }
+      save(o);
+    }
+    return o[k];
+  }
+  function show(){
+    var o=load(), t=today(o), now=new Date();
+    $('grDate').textContent=now.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long'});
+    var box=$('rtList'); box.innerHTML='';
+    t.ids.forEach(function(id,i){
+      var c=document.createElement('div'); c.className='rtc'+(t.done[i]?' ok':'');
+      var w=document.createElement('div'); w.style.flex='1';
+      var p=document.createElement('p'); p.textContent=B[id][0]; var sm=document.createElement('small'); sm.textContent='⏱ '+B[id][1]; w.appendChild(p); w.appendChild(sm);
+      var col=document.createElement('div');
+      var ok=document.createElement('button'); ok.textContent=t.done[i]?'¡Hecho!':'Hecho'; ok.disabled=!!t.done[i];
+      ok.addEventListener('click',function(){
+        var o2=load(), t2=today(o2); if(t2.done[i]) return; t2.done[i]=true; save(o2); addStars(5); sGood();
+        var all=t2.done.every(Boolean), msg='¡Reto cumplido! +5 estrellas.';
+        if(all){ addStars(10); msg='¡Los tres retos! +15 estrellas en total. Volvé mañana por más.'; }
+        show(); $('grMsg').textContent=msg+' Racha: '+streak(o2)+' días.';
+      });
+      col.appendChild(ok);
+      if(!t.done[i]){
+        var sw=document.createElement('button'); sw.className='sw'; sw.textContent='Otro';
+        sw.addEventListener('click',function(){
+          var o2=load(), t2=today(o2), n=t2.ids[i];
+          do{ n=(n+1+Math.floor(Math.random()*(B.length-1)))%B.length; }while(t2.ids.indexOf(n)>=0);
+          t2.ids[i]=n; save(o2); sFlip(); show();
+        });
+        col.appendChild(sw);
+      }
+      c.appendChild(w); c.appendChild(col); box.appendChild(c);
+    });
+    var st=streak(o); $('grMsg').textContent=st?'Racha actual: '+st+' días.':'Cumplí un reto para empezar tu racha.';
+  }
+  return {show:show};
+})();
+
+
+/* ===== pasatiempo sin fin ===== */
+var Endless=(function(){
+  var root=$('qEndless'), pool=[], recent=[], ok=0, tot=0, run=0, bestRun=0, gained=0, tm=0, answered=false;
+  function build(){
+    pool=[];
+    [English.bank,Interview.bank].forEach(function(b){ b.forEach(function(q){ pool.push({q:q.q,t:q.t,o:q.o.map(function(x,i){return {t:x,ok:i===0};}),shuf:true}); }); });
+    TF.bank.forEach(function(q){ pool.push({q:q.q,t:q.t,o:q.o.map(function(x,i){return {t:x,ok:i===q.a};}),shuf:false}); });
+  }
+  function pick(){
+    var keep=Math.min(40,pool.length-8), cand;
+    do{ cand=pool[Math.floor(Math.random()*pool.length)]; }while(recent.indexOf(cand.q)>=0);
+    recent.push(cand.q); if(recent.length>keep) recent.shift(); return cand;
+  }
+  function stop(){ clearTimeout(tm); }
+  function start(){ if(!pool.length) build(); ok=0; tot=0; run=0; bestRun=0; gained=0; next(); }
+  function next(){
+    clearTimeout(tm); answered=false; var q=pick(); root.innerHTML='';
+    var h=document.createElement('h2'); h.textContent='Pasatiempo sin fin'; root.appendChild(h);
+    var st=document.createElement('div'); st.className='endstats'; st.innerHTML='<span>Aciertos <b>'+ok+'</b></span><span>Racha <b>'+run+'</b></span><span>Mejor racha <b>'+bestRun+'</b></span><span>Estrellas <b>+'+gained+'</b></span>'; root.appendChild(st);
+    var qq=document.createElement('p'); qq.className='qq'; qq.textContent=q.q; root.appendChild(qq);
+    var box=document.createElement('div'); box.className='opts'; root.appendChild(box);
+    var fb=document.createElement('p'); fb.setAttribute('aria-live','polite'); fb.style.minHeight='2.6em'; root.appendChild(fb);
+    var row=document.createElement('div'); row.className='row'; root.appendChild(row);
+    var nx=document.createElement('button'); nx.className='btn'; nx.textContent='Siguiente'; nx.hidden=true; nx.addEventListener('click',next); row.appendChild(nx);
+    var fin=document.createElement('button'); fin.className='ghost'; fin.textContent='Terminar por hoy'; fin.addEventListener('click',summary); row.appendChild(fin);
+    var opts=q.shuf?shuffle(q.o.slice()):q.o.slice();
+    opts.forEach(function(o){
+      var b=document.createElement('button'); b.className='opt'; b.textContent=o.t;
+      b.addEventListener('click',function(){
+        if(answered) return; answered=true; tot++;
+        Array.prototype.forEach.call(box.children,function(c,k){ c.disabled=true; if(opts[k].ok) c.classList.add('good'); });
+        if(o.ok){
+          ok++; run++; if(run>bestRun) bestRun=run; sGood(); fb.textContent='¡Correcto! '+(q.t||'');
+          if(ok%5===0){ addStars(1); gained++; toast('+1 estrella · '+ok+' aciertos'); }
+        }else{ run=0; b.classList.add('bad'); sBad(); fb.textContent='Casi. '+(q.t||''); }
+        st.innerHTML='<span>Aciertos <b>'+ok+'</b></span><span>Racha <b>'+run+'</b></span><span>Mejor racha <b>'+bestRun+'</b></span><span>Estrellas <b>+'+gained+'</b></span>';
+        nx.hidden=false; nx.focus(); tm=setTimeout(next,o.ok?2600:3800);
+      });
+      box.appendChild(b);
+    });
+  }
+  function summary(){
+    clearTimeout(tm); root.innerHTML='';
+    var h=document.createElement('h2'); h.textContent='¡Buen rato!'; root.appendChild(h);
+    var big=document.createElement('div'); big.className='big'; big.textContent=ok+' / '+tot; root.appendChild(big);
+    var p=document.createElement('p'); p.textContent='Mejor racha: '+bestRun+' · Estrellas ganadas: '+gained; root.appendChild(p);
+    var a=document.createElement('button'); a.className='btn'; a.textContent='Seguir jugando'; a.addEventListener('click',start); root.appendChild(a);
+    var sh=document.createElement('button'); sh.className='ghost'; sh.textContent='Compartir resultado'; sh.addEventListener('click',function(){ openShare(resultText(ok+' aciertos en el Pasatiempo sin fin')); }); root.appendChild(sh);
+    var g=document.createElement('button'); g.className='ghost'; g.textContent='Volver al inicio'; g.addEventListener('click',function(){ go(null); }); root.appendChild(g);
+  }
+  return {start:start,stop:stop};
+})();
+
+/* ===== sopa de letras ===== */
+var Search=(function(){
+  var TH={
+    'Frutas':['MANZANA','BANANA','DURAZNO','SANDIA','FRUTILLA','CEREZA','MELON','NARANJA','LIMON','ANANA','KIWI','MANGO'],
+    'Animales':['GATO','PERRO','TORTUGA','DELFIN','CONDOR','LECHUZA','JIRAFA','ELEFANTE','CABALLO','MARIPOSA','PINGUINO'],
+    'Ciudades':['PARIS','ROMA','LIMA','QUITO','MADRID','BOGOTA','LONDRES','TOKIO','CARACAS','SANTIAGO','BERLIN'],
+    'Cocina':['CUCHARA','TENEDOR','CUCHILLO','SARTEN','OLLA','HORNO','COCINA','BATIDORA','PLATO','VASO'],
+    'Naturaleza':['RIO','LAGO','BOSQUE','VOLCAN','CASCADA','DESIERTO','PRADERA','ISLA','SELVA','VALLE'],
+    'Países':['ARGENTINA','BRASIL','CHILE','PERU','URUGUAY','MEXICO','ESPAÑA','CUBA','CANADA','JAPON'],
+    'Colores y formas':['ROJO','AZUL','VERDE','AMARILLO','NARANJA','VIOLETA','CIRCULO','CUADRADO','ROSA','DORADO'],
+    'Música':['GUITARRA','PIANO','TAMBOR','VIOLIN','FLAUTA','TANGO','ROCK','CORO','BAJO','CANCION'],
+    'En inglés':['WINDOW','GARDEN','COFFEE','JOURNEY','BRIDGE','SUNSHINE','MOUNTAIN','FRIEND','SUMMER','TRAVEL']
+  };
+  var N=9, grid=[], words=[], found={}, sel=null, t0=0, tmr=0, done=false, cells=[];
+  var DIRS=[[0,1],[1,0],[1,1],[0,1],[1,0],[1,-1]];
+  function gen(list){
+    for(var att=0;att<80;att++){
+      var g=[]; for(var r=0;r<N;r++){ g.push([]); for(var c=0;c<N;c++) g[r].push(''); }
+      var good=true, ordered=list.slice().sort(function(a,b){return b.length-a.length;});
+      for(var w=0;w<ordered.length&&good;w++){
+        var word=ordered[w], placed=false;
+        for(var tr=0;tr<120&&!placed;tr++){
+          var d=DIRS[Math.floor(Math.random()*DIRS.length)], r0=Math.floor(Math.random()*N), c0=Math.floor(Math.random()*N);
+          var r1=r0+d[0]*(word.length-1), c1=c0+d[1]*(word.length-1);
+          if(r1<0||r1>=N||c1<0||c1>=N) continue;
+          var fit=true; for(var k=0;k<word.length;k++){ var ch=g[r0+d[0]*k][c0+d[1]*k]; if(ch&&ch!==word.charAt(k)){ fit=false; break; } }
+          if(!fit) continue;
+          for(var k2=0;k2<word.length;k2++) g[r0+d[0]*k2][c0+d[1]*k2]=word.charAt(k2);
+          placed=true;
+        }
+        if(!placed) good=false;
+      }
+      if(good){
+        var AB='ABCDEFGHIJLMNOPQRSTUVXZAEIOAEIOSRNLT';
+        for(var rr=0;rr<N;rr++) for(var cc=0;cc<N;cc++) if(!g[rr][cc]) g[rr][cc]=AB.charAt(Math.floor(Math.random()*AB.length));
+        return g;
+      }
+    }
+    return null;
+  }
+  function fmt(sec){ return Math.floor(sec/60)+':'+(sec%60<10?'0':'')+(sec%60); }
+  function stop(){ clearInterval(tmr); }
+  function start(){
+    stop(); var names=Object.keys(TH), th=names[Math.floor(Math.random()*names.length)];
+    do{ words=shuffle(TH[th]).slice(0,5); grid=gen(words); }while(!grid);
+    found={}; sel=null; done=false; cells=[];
+    $('ssTheme').textContent='Tema: '+th+'. Tocá la primera y la última letra de cada palabra.'; $('ssMsg').textContent=''; $('ssCount').textContent='0/5'; $('ssTime').textContent='0:00';
+    var box=$('ssGrid'); box.innerHTML='';
+    for(var r=0;r<N;r++){ cells.push([]); for(var c=0;c<N;c++){
+      var b=document.createElement('button'); b.className='sc'; b.textContent=grid[r][c]; b.setAttribute('aria-label','Letra '+grid[r][c]+', fila '+(r+1)+', columna '+(c+1));
+      (function(r,c,b){ b.addEventListener('click',function(){ tap(r,c); }); })(r,c,b); box.appendChild(b); cells[r].push(b);
+    } }
+    var wl=$('ssList'); wl.innerHTML=''; words.forEach(function(w){ var sp=document.createElement('span'); sp.id='sw-'+w; sp.textContent=w; wl.appendChild(sp); });
+    t0=Date.now(); tmr=setInterval(function(){ if(!done) $('ssTime').textContent=fmt(Math.floor((Date.now()-t0)/1000)); },1000);
+  }
+  function clearSel(){ if(sel){ cells[sel[0]][sel[1]].classList.remove('sel'); sel=null; } }
+  function tap(r,c){
+    if(done) return;
+    if(!sel){ sel=[r,c]; cells[r][c].classList.add('sel'); sFlip(); return; }
+    var r0=sel[0], c0=sel[1]; clearSel();
+    if(r0===r&&c0===c) return;
+    var dr=r-r0, dc=c-c0;
+    if(!(dr===0||dc===0||Math.abs(dr)===Math.abs(dc))){ sBad(); return; }
+    var len=Math.max(Math.abs(dr),Math.abs(dc))+1, sr=Math.sign(dr), sc2=Math.sign(dc), str='', path=[];
+    for(var k=0;k<len;k++){ str+=grid[r0+sr*k][c0+sc2*k]; path.push([r0+sr*k,c0+sc2*k]); }
+    var rev=str.split('').reverse().join(''), hit=null;
+    words.forEach(function(w){ if(!found[w]&&(w===str||w===rev)) hit=w; });
+    if(!hit){ sBad(); return; }
+    found[hit]=true; var idx=words.indexOf(hit);
+    path.forEach(function(q){ cells[q[0]][q[1]].classList.add('f'+idx); });
+    $('sw-'+hit).classList.add('found'); sGood();
+    var n=Object.keys(found).length; $('ssCount').textContent=n+'/5';
+    if(n===words.length){
+      done=true; stop(); var sec=Math.floor((Date.now()-t0)/1000), st=10+(sec<90?5:0); addStars(st);
+      $('ssMsg').textContent='¡Completaste la sopa en '+fmt(sec)+'! +'+st+' estrellas';
+    }
+  }
+  $('ssAgain').addEventListener('click',start);
+  return {start:start,stop:stop};
+})();
+
+/* ===== burbujas ===== */
+var Bub=(function(){
+  var cv=$('bbCanvas'), ctx=cv.getContext('2d'), stg=$('bbStage');
+  var W=360,H=520,dpr=Math.min(window.devicePixelRatio||1,2.5),scl=1;
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var active=false, state='menu', bs=[], ps=[], tx=[], score=0, left=30, spT=0, t=0, last=0, combo=1, comboT=0, best=parseInt(Store.get('lumi-best-bub','0'),10)||0;
+  var COL=['#FF6FB0','#2A9AA3','#9C8CFF','#FF8A3D','#7FE0E6','#E04A98'];
+  function resize(){ var r=stg.getBoundingClientRect(); if(!r.width) return; cv.width=Math.round(r.width*dpr); cv.height=Math.round(r.height*dpr); scl=cv.width/W; }
+  window.addEventListener('resize',resize);
+  function reset(){ bs=[]; ps=[]; tx=[]; score=0; left=30; spT=.2; combo=1; comboT=0; }
+  function spawn(){
+    var gold=Math.random()<.09, r=gold?34:26+Math.random()*22;
+    bs.push({x:r+Math.random()*(W-2*r),y:H+r,r:r,vy:-(45+Math.random()*45)*(1+(30-left)*.01),ph:Math.random()*6,c:gold?'#FFD36B':COL[Math.floor(Math.random()*COL.length)],gold:gold});
+  }
+  function pop(b){
+    var pts=(b.gold?5:1)*combo; score+=pts; if(b.gold) left=Math.min(40,left+2);
+    comboT=.9; combo=Math.min(5,combo+(b.gold?0:1)); if(b.gold) combo=Math.max(combo,2);
+    var n=reduce?4:12; for(var i=0;i<n;i++){ var a=Math.random()*6.283, sp=40+Math.random()*120; ps.push({x:b.x,y:b.y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,l:.5,c:b.c}); }
+    tx.push({x:b.x,y:b.y,s:'+'+pts,l:.8}); tone(b.gold?880:520+combo*60,.12,'triangle',.08,1.4);
+  }
+  cv.addEventListener('pointerdown',function(e){
+    ensureAudio(); if(state!=='play') return;
+    var rc=cv.getBoundingClientRect(), x=(e.clientX-rc.left)/rc.width*W, y=(e.clientY-rc.top)/rc.height*H;
+    for(var i=bs.length-1;i>=0;i--){ var b=bs[i], d=Math.hypot(b.x-x,b.y-y); if(d<b.r+14){ bs.splice(i,1); pop(b); return; } }
+    combo=1;
+  });
+  function update(dt){
+    t+=dt;
+    if(state==='play'){
+      left-=dt; if(left<=0){ left=0; finish(); }
+      spT-=dt; if(spT<=0){ spawn(); spT=Math.max(.3,.6-(30-left)*.008)*(.7+Math.random()*.6); }
+      comboT-=dt; if(comboT<=0) combo=1;
+    }
+    for(var i=bs.length-1;i>=0;i--){ var b=bs[i]; b.y+=b.vy*dt; b.x+=Math.sin(t*2+b.ph)*18*dt; if(b.y<-b.r-10) bs.splice(i,1); }
+    for(var j=ps.length-1;j>=0;j--){ var p=ps[j]; p.l-=dt; p.x+=p.vx*dt; p.y+=p.vy*dt; p.vy+=200*dt; if(p.l<=0) ps.splice(j,1); }
+    for(var k=tx.length-1;k>=0;k--){ tx[k].l-=dt; tx[k].y-=40*dt; if(tx[k].l<=0) tx.splice(k,1); }
+  }
+  function draw(){
+    ctx.setTransform(scl,0,0,scl,0,0);
+    var g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#10203a'); g.addColorStop(1,'#14505f'); ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    for(var i=0;i<bs.length;i++){
+      var b=bs[i], rg=ctx.createRadialGradient(b.x-b.r*.35,b.y-b.r*.4,b.r*.1,b.x,b.y,b.r);
+      rg.addColorStop(0,'rgba(255,255,255,.9)'); rg.addColorStop(.35,b.c+'ee'); rg.addColorStop(1,b.c+'aa');
+      ctx.fillStyle=rg; ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,6.283); ctx.fill();
+      ctx.strokeStyle=b.gold?'#FFF3C4':'rgba(255,255,255,.85)'; ctx.lineWidth=b.gold?4:2.5; ctx.stroke();
+    }
+    for(var j=0;j<ps.length;j++){ var p=ps[j]; ctx.globalAlpha=Math.max(0,p.l*2); ctx.fillStyle=p.c; ctx.beginPath(); ctx.arc(p.x,p.y,3,0,6.283); ctx.fill(); }
+    ctx.globalAlpha=1; ctx.textAlign='center'; ctx.font='700 16px Fredoka, system-ui, sans-serif';
+    for(var k=0;k<tx.length;k++){ ctx.globalAlpha=Math.max(0,tx[k].l*1.4); ctx.fillStyle='#FFF3C4'; ctx.fillText(tx[k].s,tx[k].x,tx[k].y); }
+    ctx.globalAlpha=1;
+    if(state==='play'||state==='over'){
+      ctx.textAlign='left'; ctx.fillStyle='#FBF7F9'; ctx.font='700 30px Fredoka, system-ui, sans-serif'; ctx.fillText(String(score),16,42);
+      ctx.textAlign='right'; ctx.fillStyle=left<=8?'#FFD36B':'#FBF7F9'; ctx.fillText(Math.ceil(left)+'s',W-16,42);
+      ctx.fillStyle='rgba(255,255,255,.18)'; ctx.fillRect(16,54,W-32,6); ctx.fillStyle='#FFD36B'; ctx.fillRect(16,54,(W-32)*Math.min(1,left/30),6);
+      if(combo>1){ ctx.textAlign='left'; ctx.fillStyle='#FFD36B'; ctx.font='700 16px Fredoka, system-ui, sans-serif'; ctx.fillText('x'+combo+' combo',16,82); }
+    }
+  }
+  function frame(ts){
+    if(!active) return; if(!last) last=ts; var dt=Math.min(.05,(ts-last)/1000); last=ts;
+    update(dt); draw(); requestAnimationFrame(frame);
+  }
+  function finish(){
+    if(state!=='play') return; state='over'; var gain=Math.floor(score/8); addStars(gain); sGood();
+    var nb=score>best&&score>0; if(nb){ best=score; Store.set('lumi-best-bub',score); }
+    $('bbScore').textContent=String(score); $('bbMsg').textContent=(nb?'¡Nuevo récord! ':'Mejor: '+best+' · ')+'+'+gain+' estrellas';
+    setTimeout(function(){ if(state==='over') $('bbOver').hidden=false; },400);
+  }
+  function begin(){ ensureAudio(); reset(); state='play'; $('bbMenu').hidden=true; $('bbOver').hidden=true; }
+  $('bbPlay').addEventListener('click',begin); $('bbAgain').addEventListener('click',begin);
+  $('bbShare').addEventListener('click',function(){ openShare(resultText(score+' puntos en Burbujas')); });
+  function enter(){ if(active) return; active=true; state='menu'; reset(); $('bbMenu').hidden=false; $('bbOver').hidden=true; resize(); last=0; requestAnimationFrame(frame); }
+  function leave(){ active=false; state='menu'; }
+  return {enter:enter,leave:leave};
+})();
+
+/* ===== Vivia al vuelo ===== */
+var Fly=(function(){
+
+  var W=360,H=640;
+  var cv=document.getElementById('c'), ctx=cv.getContext('2d');
+  var stage=document.getElementById('stage');
+  var menu=document.getElementById('menu'), over=document.getElementById('over'), quiz=document.getElementById('quiz');
+  var qText=document.getElementById('qText'), qOpts=document.getElementById('qOpts'), qFb=document.getElementById('qFb'), qNext=document.getElementById('qNext');
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var dpr=Math.min(window.devicePixelRatio||1,2.5), scale=1;
+
+  function resize(){
+    var r=stage.getBoundingClientRect();
+    cv.width=Math.round(r.width*dpr); cv.height=Math.round(r.height*dpr);
+    scale=cv.width/W;
+  }
+  window.addEventListener('resize',resize); resize();
+
+  function sStar(c){ tone(620+c*70,.16,'triangle',.1,1.6); }
+  function sCloud(){ tone(190,.35,'sawtooth',.07,.45); }
+  function sHeart(){ tone(520,.12,'sine',.1,1.3); setTimeout(function(){tone(780,.18,'sine',.1,1.2);},90); }
+  function sLevel(){ [523,659,784,1047].forEach(function(f,i){ setTimeout(function(){tone(f,.2,'triangle',.1);},i*90); }); }
+  function sPower(){ tone(440,.1,'square',.06,1.5); setTimeout(function(){tone(880,.2,'triangle',.1,1.2);},80); }
+  function sOver(){ [392,330,262].forEach(function(f,i){ setTimeout(function(){tone(f,.28,'sine',.1);},i*160); }); }
+
+  /* ---------- estado ---------- */
+  var WORDS=['Calma','Foco','Energía','Gratitud','Coraje','Equilibrio','Alegría','Bienestar','Brillo','Impulso'];
+  var LEVELMSG=['¡A volar!','Vas con todo','¡Qué ritmo!','Estás en llamas','Imparable','Leyenda de las nubes'];
+  var state='menu', t=0;
+  var P={x:W/2,y:H-120,tx:W/2,inv:0};
+  var items=[], parts=[], texts=[], bgStars=[];
+  var score=0,lives=3,level=1,collected=0,streak=0,spawnT=0,banner=null,shake=0,flash=0,wordI=0;
+  var mode='classic', timeLeft=60, slowT=0, pendingQuiz=false, answered=false, qOrder=[], qi=0;
+  var best=0, bestC=0, bestT=0;
+  try{ bestC=parseInt(localStorage.getItem('vivia-vuela-best')||'0',10)||0; bestT=parseInt(localStorage.getItem('vivia-vuela-best-t')||'0',10)||0; }catch(e){}
+  var rain=0;
+  function bestNow(){ return mode==='time'?bestT:bestC; }
+  var QS=[
+    {q:'¿Cuál es la capital de Australia?',o:['Canberra', 'Sídney', 'Melbourne'],a:0,t:'Sídney es más famosa, pero la capital es Canberra.'},
+    {q:'¿Cuántos colores tiene el arcoíris?',o:['Siete', 'Cinco', 'Nueve'],a:0,t:'Rojo, naranja, amarillo, verde, azul, índigo y violeta.'},
+    {q:'¿Qué planeta es conocido como el planeta rojo?',o:['Marte', 'Júpiter', 'Mercurio'],a:0,t:'Por el óxido de hierro en su superficie.'},
+    {q:'¿Quién escribió “Don Quijote de la Mancha”?',o:['Miguel de Cervantes', 'Gabriel García Márquez', 'Jorge Luis Borges'],a:0,t:'Se publicó a principios del siglo XVII.'},
+    {q:'¿Cuántos huesos tiene un adulto?',o:['206', '150', '300'],a:0,t:'Los bebés nacen con más.'},
+    {q:'¿En qué país está la Torre Eiffel?',o:['Francia', 'Italia', 'Bélgica'],a:0,t:'Está en París.'},
+    {q:'¿Cuál es el animal terrestre más rápido?',o:['Guepardo', 'León', 'Caballo'],a:0,t:'Llega a unos 100 km/h.'},
+    {q:'¿Qué gas necesitan las plantas para hacer fotosíntesis?',o:['Dióxido de carbono', 'Oxígeno', 'Nitrógeno'],a:0,t:'Y liberan oxígeno.'},
+    {q:'¿Cuál es el río más largo de Sudamérica?',o:['Amazonas', 'Paraná', 'Orinoco'],a:0,t:'Atraviesa varios países.'},
+    {q:'¿Cuántos jugadores hay en un equipo de fútbol en cancha?',o:['Once', 'Nueve', 'Doce'],a:0,t:'Incluyendo al arquero.'},
+    {q:'¿Qué instrumento tiene teclas blancas y negras?',o:['Piano', 'Guitarra', 'Violín'],a:0,t:'Tiene 88 teclas.'},
+    {q:'¿Cuál es el idioma más hablado del mundo por hablantes nativos?',o:['Chino mandarín', 'Inglés', 'Español'],a:0,t:'Más de 900 millones de hablantes nativos.'},
+    {q:'¿En qué continente está Egipto?',o:['África', 'Asia', 'Europa'],a:0,t:'En el norte de África.'},
+    {q:'¿Cuál es el metal más usado en los cables eléctricos?',o:['Cobre', 'Oro', 'Hierro'],a:0,t:'Conduce muy bien la electricidad.'},
+    {q:'¿Qué país tiene forma de bota?',o:['Italia', 'España', 'Grecia'],a:0,t:'Se ve claramente en el mapa.'},
+    {q:'¿Cuál es el océano más grande del planeta?',o:['Pacífico','Atlántico','Índico'],a:0,t:'El Pacífico ocupa casi un tercio de la Tierra.'},
+    {q:'¿En qué año llegó el ser humano a la Luna?',o:['1969','1959','1975'],a:0,t:'Fue en julio de 1969, con el Apolo 11.'},
+    {q:'¿Quién pintó “La noche estrellada”?',o:['Vincent van Gogh','Claude Monet','Pablo Picasso'],a:0,t:'Van Gogh la pintó en 1889.'},
+    {q:'¿Cuál es la capital de Australia?',o:['Canberra','Sídney','Melbourne'],a:0,t:'Mucha gente piensa en Sídney, pero es Canberra.'},
+    {q:'¿Cuántos huesos tiene el cuerpo de un adulto?',o:['206','150','312'],a:0,t:'Los bebés nacen con más y se van uniendo.'},
+    {q:'¿Qué país de Sudamérica tiene más habitantes?',o:['Brasil','Argentina','Colombia'],a:0,t:'Brasil supera los 200 millones.'},
+    {q:'¿Qué gas toman las plantas para hacer la fotosíntesis?',o:['Dióxido de carbono','Oxígeno','Nitrógeno'],a:0,t:'Y liberan oxígeno, qué buen trato.'},
+    {q:'¿Cuántas horas tiene una semana?',o:['168','144','180'],a:0,t:'24 horas por 7 días.'},
+    {q:'¿Cómo se dice “mañana” (el día siguiente) en inglés?',o:['Tomorrow','Morning','Yesterday'],a:0,t:'Morning es la mañana como parte del día.'},
+    {q:'¿Cómo se dice “ventana” en inglés?',o:['Window','Winter','Wind'],a:0,t:'Window, con “o” al final.'}
+  ];
+
+  for(var i=0;i<60;i++) bgStars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.6+.4,s:Math.random()*30+8,p:Math.random()*6});
+
+  function reset(){
+    score=0;lives=3;level=1;collected=0;streak=0;spawnT=.6;items=[];parts=[];texts=[];
+    banner={txt:LEVELMSG[0],t:1.6};P.x=W/2;P.tx=W/2;P.inv=0;shake=0;flash=0;P.shield=false;P.mag=0;slowT=0;timeLeft=60;pendingQuiz=false;rain=0;
+  }
+  function combo(){ return Math.min(5,1+Math.floor(streak/5)); }
+
+  /* ---------- entrada ---------- */
+  var keys={l:false,r:false};
+  function pointerX(e){
+    var r=cv.getBoundingClientRect();
+    return (e.clientX-r.left)/r.width*W;
+  }
+  cv.addEventListener('pointerdown',function(e){ ensureAudio(); if(state==='play'){ P.tx=pointerX(e); try{cv.setPointerCapture(e.pointerId);}catch(_){} } });
+  cv.addEventListener('pointermove',function(e){ if(state==='play'&&(e.pointerType!=='mouse'||true)) P.tx=pointerX(e); });
+  window.addEventListener('keydown',function(e){
+    if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A'){keys.l=true;}
+    if(e.key==='ArrowRight'||e.key==='d'||e.key==='D'){keys.r=true;}
+  });
+  window.addEventListener('keyup',function(e){
+    if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A'){keys.l=false;}
+    if(e.key==='ArrowRight'||e.key==='d'||e.key==='D'){keys.r=false;}
+  });
+
+  function start(m){
+    ensureAudio(); mode=m||mode; reset(); state='play'; menu.hidden=true; over.hidden=true; quiz.hidden=true;
+  }
+  document.getElementById('play').addEventListener('click',function(){start('classic');});
+  document.getElementById('playTime').addEventListener('click',function(){start('time');});
+  document.getElementById('again').addEventListener('click',function(){start();});
+  document.getElementById('toMenu').addEventListener('click',function(){ over.hidden=true; menu.hidden=false; state='menu'; items=[]; });
+  qNext.addEventListener('click',function(){ quiz.hidden=true; state='play'; last=0; });
+  document.addEventListener('visibilitychange',function(){ last=0; });
+
+  function openQuiz(){
+    if(!qOrder.length||qi>=qOrder.length){ qOrder=QS.map(function(_,i){return i;}).sort(function(){return Math.random()-.5;}); qi=0; }
+    var q=QS[qOrder[qi++]];
+    state='quiz'; keys.l=false; keys.r=false; answered=false;
+    qText.textContent=q.q; qFb.textContent=''; qNext.hidden=true; qOpts.innerHTML='';
+    var opts=q.o.map(function(txt,i){ return {txt:txt,ok:i===q.a}; }).sort(function(){return Math.random()-.5;});
+    opts.forEach(function(o){
+      var b=document.createElement('button'); b.className='opt'; b.textContent=o.txt;
+      b.addEventListener('click',function(){
+        if(answered) return; answered=true;
+        Array.prototype.forEach.call(qOpts.children,function(c,idx){ c.disabled=true; if(opts[idx].ok) c.classList.add('good'); });
+        if(o.ok){ score+=50; if(lives<3) lives++; sHeart(); qFb.textContent='¡Correcto! +50 puntos. '+q.t; }
+        else{ b.classList.add('bad'); qFb.textContent='Casi. '+q.t; }
+        qNext.hidden=false; qNext.focus();
+      });
+      qOpts.appendChild(b);
+    });
+    quiz.hidden=false;
+  }
+  function gameOver(){
+    if(state==='over') return;
+    state='over'; sOver();
+    var fs=document.getElementById('finalScore'); fs.textContent=String(score);
+    var msg=score<120?'¡Buen intento! Con práctica sale cada vez mejor.':score<350?'¡Muy bien! Ya agarraste el ritmo.':'¡Increíble! Ni las nubes te frenan.';
+    document.getElementById('finalMsg').textContent=msg;
+    var gain=Math.floor(score/10); addStars(gain);
+    var isBest=score>bestNow()&&score>0;
+    if(isBest){ if(mode==='time'){bestT=score;}else{bestC=score;} try{localStorage.setItem(mode==='time'?'vivia-vuela-best-t':'vivia-vuela-best',String(score));}catch(e){} }
+    document.getElementById('bestMsg').textContent=(isBest?'¡Nuevo récord! ':'')+'+'+gain+' estrellas · mejor: '+bestNow();
+    setTimeout(function(){ if(state==='over') over.hidden=false; },500);
+  }
+
+  /* ---------- elementos ---------- */
+  function spawn(){
+    var r=Math.random(), kind;
+    if(r<.66) kind='star'; else if(r<.89) kind='cloud'; else if(r<.93) kind='heart'; else if(r<.955) kind='shield'; else if(r<.98) kind='magnet'; else kind='slow';
+    if(kind==='heart'&&(mode==='time'||lives>=3)) kind='star';
+    if(kind==='shield'&&P.shield) kind='star';
+    items.push({k:kind,x:24+Math.random()*(W-48),y:-30,v:105+level*17+Math.random()*40,rot:Math.random()*6,wob:Math.random()*6,r:kind==='cloud'?22:16});
+  }
+  function burst(x,y,col,n){
+    if(reduce) n=Math.ceil(n/3);
+    for(var i=0;i<n;i++){ var a=Math.random()*6.283, s=40+Math.random()*130;
+      parts.push({x:x,y:y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-30,life:.6+Math.random()*.4,max:1,c:col,s:2+Math.random()*3}); }
+  }
+  function say(x,y,txt,col){ texts.push({x:x,y:y,txt:txt,life:1,c:col}); }
+
+  /* ---------- actualizar ---------- */
+  function update(dt){
+    t+=dt;
+    if(state==='menu'||state==='over'){ P.x+=((W/2+Math.sin(t*1.3)*60)-P.x)*Math.min(1,dt*2); }
+    if(state==='play'){
+      if(keys.l) P.tx-=420*dt; if(keys.r) P.tx+=420*dt;
+      P.tx=Math.max(30,Math.min(W-30,P.tx));
+      P.x+=(P.tx-P.x)*Math.min(1,dt*11);
+      if(P.inv>0) P.inv-=dt;
+      if(P.mag>0) P.mag-=dt; if(slowT>0) slowT-=dt;
+      if(mode==='time'){ timeLeft-=dt; if(timeLeft<=0){ timeLeft=0; gameOver(); } }
+      spawnT-=dt;
+      if(rain>0){ rain-=dt; }
+      if(spawnT<=0){
+        if(rain>0){ items.push({k:'star',x:24+Math.random()*(W-48),y:-30,v:150+Math.random()*50,rot:Math.random()*6,wob:0,r:16}); spawnT=.12; }
+        else{ spawn(); spawnT=Math.max(.38,.95-level*.06)*(.8+Math.random()*.5); }
+      }
+      for(var i=items.length-1;i>=0;i--){
+        var it=items[i]; it.y+=it.v*dt*(slowT>0?.55:1);
+        if(P.mag>0&&it.k==='star'){ var mx=P.x-it.x, my=(P.y-18)-it.y, md=Math.sqrt(mx*mx+my*my); if(md<170&&md>1){ it.x+=mx/md*260*dt; it.y+=my/md*140*dt; } } it.rot+=dt*(it.k==='star'?2:0); it.wob+=dt*3;
+        var dx=it.x-P.x, dy=it.y-(P.y-18), d=Math.sqrt(dx*dx+dy*dy);
+        if(d<it.r+22){
+          items.splice(i,1);
+          if(it.k==='star'){
+            streak++; collected++; var cm=combo(); score+=10*cm; sStar(cm);
+            burst(it.x,it.y,'#FFD36B',10); say(it.x,it.y-16,WORDS[wordI++%WORDS.length],'#FFE9A8');
+            var nl=1+Math.floor(collected/12);
+            if(nl>level){ level=nl; banner={txt:LEVELMSG[Math.min(LEVELMSG.length-1,level-1)],t:1.8,lv:level}; sLevel(); burst(P.x,P.y-30,'#2A9AA3',22); if(mode==='classic'&&level%2===0) pendingQuiz=true; if(level%2===1&&level>=3){ rain=3.2; banner={txt:'¡Lluvia de estrellas!',t:2.2,lv:level}; } }
+          }else if(it.k==='heart'){
+            lives=Math.min(3,lives+1); sHeart(); burst(it.x,it.y,'#FF6FB0',14); say(it.x,it.y-16,'+1 vida','#FFB3D6');
+          }else if(it.k==='shield'){
+            P.shield=true; sPower(); burst(it.x,it.y,'#7FE0E6',14); say(it.x,it.y-16,'Escudo','#9FE6EC');
+          }else if(it.k==='magnet'){
+            P.mag=7; sPower(); burst(it.x,it.y,'#FF8EC2',14); say(it.x,it.y-16,'Imán','#FFB3D6');
+          }else if(it.k==='slow'){
+            slowT=5; sPower(); burst(it.x,it.y,'#9C8CFF',14); say(it.x,it.y-16,'Cámara lenta','#CFC6FF');
+          }else if(P.shield){
+            P.shield=false; P.inv=.7; sCloud(); burst(it.x,it.y,'#7FE0E6',18); say(it.x,it.y-16,'¡Escudo!','#9FE6EC');
+          }else if(P.inv<=0){
+            streak=0; P.inv=1.1; sCloud(); shake=reduce?0:.35; flash=.35; burst(it.x,it.y,'#8D7BA6',14);
+            if(mode==='time'){ score=Math.max(0,score-20); say(it.x,it.y-16,'-20','#E7DDF0'); }
+            else{ lives--; say(it.x,it.y-16,'¡Ay!','#E7DDF0'); if(lives<=0) gameOver(); }
+          }
+        }else if(it.y>H+40){ items.splice(i,1); }
+      }
+      if(pendingQuiz&&state==='play'){ pendingQuiz=false; openQuiz(); }
+    }else if(state!=='quiz'){
+      for(var j=items.length-1;j>=0;j--){ items[j].y+=items[j].v*dt*.5; if(items[j].y>H+40) items.splice(j,1); }
+      if(state==='menu'&&Math.random()<dt*1.2) spawn();
+    }
+    for(var p=parts.length-1;p>=0;p--){ var q=parts[p]; q.life-=dt; q.x+=q.vx*dt; q.y+=q.vy*dt; q.vy+=260*dt; if(q.life<=0) parts.splice(p,1); }
+    for(var k=texts.length-1;k>=0;k--){ var tx=texts[k]; tx.life-=dt*1.1; tx.y-=34*dt; if(tx.life<=0) texts.splice(k,1); }
+    if(banner){ banner.t-=dt; if(banner.t<=0) banner=null; }
+    if(shake>0) shake-=dt; if(flash>0) flash-=dt;
+  }
+
+  /* ---------- dibujo ---------- */
+  function leaf(c,s,col){
+    c.beginPath(); c.moveTo(0,0);
+    c.bezierCurveTo(17*s,-14*s,19*s,-46*s,0,-64*s);
+    c.bezierCurveTo(-19*s,-46*s,-17*s,-14*s,0,0);
+    c.fillStyle=col; c.fill();
+  }
+  function star(c,r){
+    c.beginPath();
+    for(var i=0;i<10;i++){ var a=-Math.PI/2+i*Math.PI/5, rr=i%2?r*.48:r; c.lineTo(Math.cos(a)*rr,Math.sin(a)*rr); }
+    c.closePath();
+  }
+  function heart(c,s){
+    c.beginPath(); c.moveTo(0,s*.9);
+    c.bezierCurveTo(-s*1.5,-s*.1,-s*.9,-s*1.2,0,-s*.4);
+    c.bezierCurveTo(s*.9,-s*1.2,s*1.5,-s*.1,0,s*.9); c.closePath();
+  }
+  function cloud(c,w){
+    c.beginPath();
+    c.arc(-w*.5,2,w*.34,Math.PI*.5,Math.PI*1.5); c.arc(-w*.18,-w*.2,w*.4,Math.PI,Math.PI*1.95);
+    c.arc(w*.28,-w*.1,w*.34,Math.PI*1.2,Math.PI*2.2); c.arc(w*.5,2,w*.3,Math.PI*1.5,Math.PI*.5);
+    c.closePath();
+  }
+  function drawPlayer(){
+    var tilt=Math.max(-.3,Math.min(.3,(P.tx-P.x)*.006)), flap=Math.sin(t*9)*.1;
+    var blink=(Math.sin(t*1.7)>.97);
+    if(P.inv>0&&Math.floor(t*14)%2===0) ctx.globalAlpha=.4;
+    ctx.save(); ctx.translate(P.x,P.y); ctx.rotate(tilt);
+    var g=ctx.createRadialGradient(0,-20,4,0,-20,70); g.addColorStop(0,'rgba(255,170,220,.35)'); g.addColorStop(1,'rgba(255,170,220,0)');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,-20,70,0,6.283); ctx.fill();
+    if(P.shield){ ctx.strokeStyle='rgba(127,224,230,'+(.6+.25*Math.sin(t*6))+')'; ctx.lineWidth=3; ctx.fillStyle='rgba(127,224,230,.12)'; ctx.beginPath(); ctx.arc(0,-14,38,0,6.283); ctx.fill(); ctx.stroke(); }
+    ctx.save(); ctx.translate(0,-4); ctx.rotate(-.6-flap); leaf(ctx,.62,SK[skinI].a); ctx.restore();
+    ctx.save(); ctx.translate(0,-4); ctx.rotate(.6+flap); leaf(ctx,.62,SK[skinI].b); ctx.restore();
+    ctx.fillStyle='#FBF7F9'; ctx.beginPath(); ctx.arc(0,0,13,0,6.283); ctx.fill();
+    ctx.fillStyle='#1F1A2E';
+    if(blink){ ctx.fillRect(-7,-1,5,1.6); ctx.fillRect(2,-1,5,1.6); }
+    else{ ctx.beginPath(); ctx.arc(-4.5,-1,2,0,6.283); ctx.arc(4.5,-1,2,0,6.283); ctx.fill(); }
+    ctx.strokeStyle='#1F1A2E'; ctx.lineWidth=1.5; ctx.lineCap='round';
+    ctx.beginPath(); ctx.arc(0,3,3.4,.15*Math.PI,.85*Math.PI); ctx.stroke();
+    ctx.fillStyle='rgba(224,74,152,.35)'; ctx.beginPath(); ctx.arc(-8,4,2.6,0,6.283); ctx.arc(8,4,2.6,0,6.283); ctx.fill();
+    ctx.restore(); ctx.globalAlpha=1;
+  }
+  function drawItem(it){
+    ctx.save(); ctx.translate(it.x,it.y);
+    if(it.k==='star'){
+      ctx.rotate(Math.sin(it.rot)*.35);
+      var gl=ctx.createRadialGradient(0,0,2,0,0,30); gl.addColorStop(0,'rgba(255,211,107,.55)'); gl.addColorStop(1,'rgba(255,211,107,0)');
+      ctx.fillStyle=gl; ctx.beginPath(); ctx.arc(0,0,30,0,6.283); ctx.fill();
+      star(ctx,17); ctx.fillStyle='#FFD36B'; ctx.fill(); ctx.lineJoin='round'; ctx.lineWidth=3; ctx.strokeStyle='#FFE9A8'; ctx.stroke();
+      ctx.fillStyle='#1F1A2E'; ctx.beginPath(); ctx.arc(-3.5,1,1.5,0,6.283); ctx.arc(3.5,1,1.5,0,6.283); ctx.fill();
+    }else if(it.k==='shield'||it.k==='magnet'||it.k==='slow'){
+      var pu=1+Math.sin(it.wob*2)*.08; ctx.scale(pu,pu);
+      ctx.fillStyle=it.k==='shield'?'#2A9AA3':it.k==='magnet'?'#C42F7F':'#6E5BD0';
+      ctx.beginPath(); ctx.arc(0,0,17,0,6.283); ctx.fill(); ctx.lineWidth=3; ctx.strokeStyle='rgba(255,255,255,.75)'; ctx.stroke();
+      ctx.fillStyle='#FBF7F9'; ctx.strokeStyle='#FBF7F9'; ctx.lineCap='round';
+      if(it.k==='shield'){ ctx.beginPath(); ctx.moveTo(0,-9); ctx.lineTo(8,-6); ctx.quadraticCurveTo(8,6,0,10); ctx.quadraticCurveTo(-8,6,-8,-6); ctx.closePath(); ctx.fill(); }
+      else if(it.k==='magnet'){ ctx.lineWidth=4; ctx.lineCap='butt'; ctx.beginPath(); ctx.arc(0,1,6,Math.PI,0); ctx.moveTo(-6,1); ctx.lineTo(-6,8); ctx.moveTo(6,1); ctx.lineTo(6,8); ctx.stroke(); }
+      else{ ctx.lineWidth=2.5; ctx.beginPath(); ctx.arc(0,0,8,0,6.283); ctx.moveTo(0,0); ctx.lineTo(0,-5); ctx.moveTo(0,0); ctx.lineTo(4,2); ctx.stroke(); }
+    }else if(it.k==='heart'){
+      ctx.scale(1+Math.sin(it.wob*2)*.08,1+Math.sin(it.wob*2)*.08);
+      heart(ctx,13); ctx.fillStyle='#FF6FB0'; ctx.fill(); ctx.lineWidth=2.5; ctx.strokeStyle='#FFD1E6'; ctx.stroke();
+    }else{
+      ctx.translate(Math.sin(it.wob)*3,0);
+      cloud(ctx,40); ctx.fillStyle='#7C6A93'; ctx.fill();
+      ctx.fillStyle='#1F1A2E'; ctx.beginPath(); ctx.arc(-6,-3,2.2,0,6.283); ctx.arc(7,-3,2.2,0,6.283); ctx.fill();
+      ctx.strokeStyle='#1F1A2E'; ctx.lineWidth=2; ctx.lineCap='round'; ctx.beginPath(); ctx.arc(0,9,4.5,1.15*Math.PI,1.85*Math.PI); ctx.stroke();
+    }
+    ctx.restore();
+  }
+  function pill(txt,x,y,col,alpha){
+    ctx.save(); ctx.globalAlpha=alpha; ctx.font='800 13px Nunito, system-ui, sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    var w=ctx.measureText(txt).width+16;
+    ctx.fillStyle='rgba(27,11,36,.7)'; ctx.beginPath();
+    if(ctx.roundRect) ctx.roundRect(x-w/2,y-11,w,22,11); else ctx.rect(x-w/2,y-11,w,22);
+    ctx.fill(); ctx.fillStyle=col; ctx.fillText(txt,x,y+1); ctx.restore();
+  }
+  function hud(){
+    ctx.textBaseline='alphabetic';
+    ctx.fillStyle='#FBF7F9'; ctx.font='700 30px Fredoka, system-ui, sans-serif'; ctx.textAlign='left';
+    ctx.fillText(String(score),16,42);
+    ctx.fillStyle='#CDB9D6'; ctx.font='800 12px Nunito, system-ui, sans-serif';
+    ctx.fillText((mode==='time'?'CONTRARRELOJ':'NIVEL '+level)+'   ·   RÉCORD '+Math.max(bestNow(),score),16,60);
+    if(mode==='time'){
+      ctx.textAlign='right'; ctx.fillStyle=timeLeft<=10?'#FFD36B':'#FBF7F9'; ctx.font='700 30px Fredoka, system-ui, sans-serif'; ctx.fillText(Math.ceil(timeLeft)+'s',W-16,42);
+    }else{
+      for(var i=0;i<3;i++){
+        ctx.save(); ctx.translate(W-24-i*26,34); heart(ctx,9);
+        ctx.fillStyle=i<lives?'#FF6FB0':'rgba(255,255,255,.14)'; ctx.fill(); ctx.restore();
+      }
+    }
+    var py=88;
+    if(P.mag>0){ pill('Imán '+Math.ceil(P.mag)+'s',W-52,py,'#FFB3D6',1); py+=26; }
+    if(slowT>0){ pill('Lento '+Math.ceil(slowT)+'s',W-52,py,'#CFC6FF',1); py+=26; }
+    var cm=combo();
+    if(cm>1){ ctx.textAlign='right'; ctx.fillStyle='#FFD36B'; ctx.font='700 18px Fredoka, system-ui, sans-serif'; ctx.fillText('x'+cm+' combo',W-16,64); }
+  }
+  function draw(){
+    ctx.setTransform(scale,0,0,scale,0,0);
+    var sx=0,sy=0; if(shake>0){ sx=(Math.random()-.5)*8*shake*3; sy=(Math.random()-.5)*8*shake*3; }
+    ctx.save(); ctx.translate(sx,sy);
+    var bg=ctx.createLinearGradient(0,0,0,H); bg.addColorStop(0,'#1B0B24'); bg.addColorStop(.6,'#3A1344'); bg.addColorStop(1,'#6A1F55');
+    ctx.fillStyle=bg; ctx.fillRect(-10,-10,W+20,H+20);
+    var hz=ctx.createRadialGradient(W/2,H+30,10,W/2,H+30,360); hz.addColorStop(0,'rgba(232,90,160,.5)'); hz.addColorStop(1,'rgba(232,90,160,0)');
+    ctx.fillStyle=hz; ctx.fillRect(0,0,W,H);
+    for(var i=0;i<bgStars.length;i++){ var b=bgStars[i]; b.y+=b.s*.016; if(b.y>H) b.y=-4;
+      ctx.globalAlpha=.35+.35*Math.sin(t*2+b.p); ctx.fillStyle='#FBF7F9'; ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,6.283); ctx.fill(); }
+    ctx.globalAlpha=1;
+    for(var j=0;j<items.length;j++) drawItem(items[j]);
+    for(var p=0;p<parts.length;p++){ var q=parts[p]; ctx.globalAlpha=Math.max(0,q.life/1.0); ctx.fillStyle=q.c; ctx.beginPath(); ctx.arc(q.x,q.y,q.s,0,6.283); ctx.fill(); }
+    ctx.globalAlpha=1;
+    drawPlayer();
+    for(var k=0;k<texts.length;k++){ var tx=texts[k]; pill(tx.txt,Math.max(50,Math.min(W-50,tx.x)),tx.y,tx.c,Math.min(1,tx.life*1.6)); }
+    if(state==='play'||state==='quiz') hud();
+    if(banner&&state==='play'){ 
+      var a=Math.min(1,banner.t*2);
+      ctx.save(); ctx.globalAlpha=a; ctx.textAlign='center';
+      if(banner.lv){ ctx.fillStyle='#2A9AA3'; ctx.font='800 14px Nunito, system-ui, sans-serif'; ctx.fillText('NIVEL '+banner.lv,W/2,H*.3-30); }
+      ctx.fillStyle='#FBF7F9'; ctx.font='700 30px Fredoka, system-ui, sans-serif'; ctx.fillText(banner.txt,W/2,H*.3);
+      ctx.restore();
+    }
+    if(flash>0){ ctx.fillStyle='rgba(255,80,110,'+(flash*.5)+')'; ctx.fillRect(-10,-10,W+20,H+20); }
+    ctx.restore();
+  }
+
+  var last=0;
+  var active=false;
+  function frame(ts){
+    if(!active) return;
+    if(!last) last=ts;
+    var dt=Math.min(.05,(ts-last)/1000); last=ts;
+    update(dt); draw(); requestAnimationFrame(frame);
+  }
+  function enter(){ if(active) return; active=true; state='menu'; menu.hidden=false; over.hidden=true; quiz.hidden=true; items=[]; resize(); last=0; requestAnimationFrame(frame); }
+  function leave(){ active=false; keys.l=false; keys.r=false; }
+  return {enter:enter,leave:leave};
+
+})();
+
+(function(){
+  var el=document.getElementById('intro'); if(!el) return;
+  var gone=false;
+  function close(){ if(gone) return; gone=true; el.classList.add('out'); setTimeout(function(){ el.style.display='none'; },700); }
+  el.addEventListener('click',close);
+  el.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' ') close(); });
+  setTimeout(close,4300);
+})();
+
+(function(){ var m=document.querySelector('.hero svg'); if(!m) return;
+  m.addEventListener('click',function(){ m.classList.remove('jump'); void m.getBoundingClientRect(); m.classList.add('jump'); tone(520,.18,'sine',.08,1.6); setTimeout(function(){ m.classList.remove('jump'); },950); });
+})();
+</script>
+
+<script>if('serviceWorker' in navigator){ window.addEventListener('load',function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); }); }</script>
+</body></html>
