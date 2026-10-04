@@ -420,7 +420,7 @@ body.play .stage{border-radius:20px}
 <section class="module" id="m-bubbles" hidden>
   <div class="stage bub" id="bbStage">
     <canvas id="bbCanvas" aria-label="Juego de burbujas"></canvas>
-    <div class="overlay" id="bbMenu"><h2>Burbujas</h2><p>Tocá las burbujas para explotarlas. Las doradas dan más puntos y suman tiempo. Tenés 30 segundos.</p><button class="btn" id="bbPlay">¡Empezar!</button></div>
+    <div class="overlay" id="bbMenu"><h2>Burbujas</h2><p>Tocá las burbujas para explotarlas. Las doradas dan más puntos y suman tiempo. ¡Cada 6 segundos van más rápido!</p><button class="btn" id="bbPlay">¡Empezar!</button></div>
     <div class="overlay" id="bbOver" hidden><h2>¡Tiempo!</h2><div class="big" id="bbScore">0</div><p id="bbMsg"></p><button class="btn" id="bbAgain">Otra vez</button><button class="ghost" id="bbShare">Compartir</button></div>
   </div>
 </section>
@@ -1452,10 +1452,11 @@ var Bub=(function(){
   var COL=['#FF6FB0','#2A9AA3','#9C8CFF','#FF8A3D','#7FE0E6','#E04A98'];
   function resize(){ H=fitStage(stg,W,520,860); var r=stg.getBoundingClientRect(); if(!r.width) return; cv.width=Math.round(r.width*dpr); cv.height=Math.round(r.height*dpr); scl=cv.width/W; }
   window.addEventListener('resize',resize);
-  function reset(){ bs=[]; ps=[]; tx=[]; score=0; left=30; spT=.2; combo=1; comboT=0; }
+  var pt=0, lvl=1;
+  function reset(){ bs=[]; ps=[]; tx=[]; score=0; left=30; spT=.2; combo=1; comboT=0; pt=0; lvl=1; }
   function spawn(){
     var gold=Math.random()<.09, r=gold?34:26+Math.random()*22;
-    bs.push({x:r+Math.random()*(W-2*r),y:H+r,r:r,vy:-(45+Math.random()*45)*(1+(30-left)*.01),ph:Math.random()*6,c:gold?'#FFD36B':COL[Math.floor(Math.random()*COL.length)],gold:gold});
+    bs.push({x:r+Math.random()*(W-2*r),y:H+r,r:r,vy:-(50+Math.random()*50)*(1+pt*.05),ph:Math.random()*6,c:gold?'#FFD36B':COL[Math.floor(Math.random()*COL.length)],gold:gold});
   }
   function pop(b){
     var pts=(b.gold?5:1)*combo; score+=pts; if(b.gold) left=Math.min(40,left+2);
@@ -1472,8 +1473,9 @@ var Bub=(function(){
   function update(dt){
     t+=dt;
     if(state==='play'){
-      left-=dt; if(left<=0){ left=0; finish(); }
-      spT-=dt; if(spT<=0){ spawn(); spT=Math.max(.3,.6-(30-left)*.008)*(.7+Math.random()*.6); }
+      left-=dt; pt+=dt; if(left<=0){ left=0; finish(); }
+      var nl=1+Math.floor(pt/6); if(nl>lvl){ lvl=nl; tx.push({x:W/2,y:H*.42,s:'¡Más rápido!',l:1.2}); tone(700,.15,'triangle',.08,1.5); }
+      spT-=dt; if(spT<=0){ spawn(); spT=Math.max(.2,.6-pt*.014)*(.7+Math.random()*.6); }
       comboT-=dt; if(comboT<=0) combo=1;
     }
     for(var i=bs.length-1;i>=0;i--){ var b=bs[i]; b.y+=b.vy*dt; b.x+=Math.sin(t*2+b.ph)*18*dt; if(b.y<-b.r-10) bs.splice(i,1); }
@@ -1497,6 +1499,7 @@ var Bub=(function(){
       ctx.textAlign='left'; ctx.fillStyle='#FBF7F9'; ctx.font='700 30px Fredoka, system-ui, sans-serif'; ctx.fillText(String(score),16,42);
       ctx.textAlign='right'; ctx.fillStyle=left<=8?'#FFD36B':'#FBF7F9'; ctx.fillText(Math.ceil(left)+'s',W-16,42);
       ctx.fillStyle='rgba(255,255,255,.18)'; ctx.fillRect(16,54,W-32,6); ctx.fillStyle='#FFD36B'; ctx.fillRect(16,54,(W-32)*Math.min(1,left/30),6);
+      ctx.textAlign='center'; ctx.fillStyle='rgba(255,255,255,.7)'; ctx.font='700 14px Fredoka, system-ui, sans-serif'; ctx.fillText('Velocidad '+lvl,W/2,82);
       if(combo>1){ ctx.textAlign='left'; ctx.fillStyle='#FFD36B'; ctx.font='700 16px Fredoka, system-ui, sans-serif'; ctx.fillText('x'+combo+' combo',16,82); }
     }
   }
